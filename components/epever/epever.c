@@ -248,11 +248,11 @@ esp_err_t master_init(void)
                                 "mb controller initialization fail.");
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
                             "mb controller initialization fail, returns(0x%x).",
-                            (uint32_t)err);
+                            (unsigned int)err);
     err = mbc_master_setup((void*)&comm);
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
                             "mb controller setup fail, returns(0x%x).",
-                            (uint32_t)err);
+                            (unsigned int)err);
 
     // Set UART pin numbers
     err = uart_set_pin(MB_PORT_NUM, CONFIG_MB_UART_TXD, CONFIG_MB_UART_RXD,
@@ -261,20 +261,20 @@ esp_err_t master_init(void)
     err = mbc_master_start();
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
                             "mb controller start fail, returns(0x%x).",
-                            (uint32_t)err);
+                            (unsigned int)err);
 
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
-            "mb serial set pin failure, uart_set_pin() returned (0x%x).", (uint32_t)err);
+            "mb serial set pin failure, uart_set_pin() returned (0x%x).", (unsigned int)err);
     // Set driver mode to Half Duplex
     err = uart_set_mode(MB_PORT_NUM, UART_MODE_RS485_HALF_DUPLEX);
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
-            "mb serial set mode failure, uart_set_mode() returned (0x%x).", (uint32_t)err);
+            "mb serial set mode failure, uart_set_mode() returned (0x%x).", (unsigned int)err);
 
     vTaskDelay(5);
     err = mbc_master_set_descriptor(&device_parameters[0], num_device_parameters);
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
                                 "mb controller set descriptor fail, returns(0x%x).",
-                                (uint32_t)err);
+                                (unsigned int)err);
     ESP_LOGI(MASTER_TAG, "Modbus master stack initialized...");
     return err;
 }
