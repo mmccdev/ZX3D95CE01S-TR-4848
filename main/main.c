@@ -9,6 +9,7 @@
 #include "lvgl.h"
 #include "board.h"
 #include "esp_timer.h"
+#include "ui/ui.h"
 
 #define TAG "MAIN"
 
@@ -20,7 +21,12 @@ extern void screen_init(void);
 extern void sht20_test_start(void);
 
 void lvgl_task(void* arg) {
+
+    lv_init();
     screen_init();
+
+
+    ui_init();
 
     // Tick interface for LVGL
     const esp_timer_create_args_t periodic_timer_args = {
@@ -30,9 +36,10 @@ void lvgl_task(void* arg) {
     esp_timer_handle_t periodic_timer;
     esp_timer_create(&periodic_timer_args, &periodic_timer);
     esp_timer_start_periodic(periodic_timer, portTICK_PERIOD_MS * 1000);
-
+#if LV_USE_DEMO_WIDGETS
     extern void lv_demo_widgets(void);
     lv_demo_widgets();
+ #endif   
     sht20_test_start();
 
     for (;;) {

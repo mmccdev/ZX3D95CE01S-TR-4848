@@ -8,8 +8,8 @@ file(GLOB LVGL_DEMOS
 idf_component_register(
     SRC_DIRS ${DIRS} ${LVGL_DEMOS} "."
     INCLUDE_DIRS "." ${LVGL_DEMOS} ${DIRS}
-    REQUIRES esp_lcd driver lvgl esp_timer bus touch_panel sht20
+    REQUIRES esp_lcd driver lvgl esp_timer bus touch_panel sht20 
 )
-
 target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
 
+#add_subdirectory(ui)
