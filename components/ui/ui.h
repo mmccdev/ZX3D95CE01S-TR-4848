@@ -19,9 +19,12 @@ void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1;
 void ui_event_Inverter(lv_event_t * e);
 extern lv_obj_t * ui_Inverter;
-extern lv_obj_t * ui_Panel1;
+extern lv_obj_t * ui_PanelBatt;
 extern lv_obj_t * ui_Battery;
 extern lv_obj_t * ui_BattLabelRctn;
+extern lv_obj_t * ui_PanelChargeDisCharge;
+extern lv_obj_t * ui_Barchargedischarge;
+extern lv_obj_t * ui_Labelchargedischarge;
 extern lv_obj_t * ui____initial_actions0;
 
 void ui_init(void);

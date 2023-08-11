@@ -1,4 +1,5 @@
 #include <stdio.h>
+#if defined(CONFIG_ZX3D95CE01S_TR_4848) || defined(CONFIG_ZX3D95CE01S_AR_4848)
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -831,3 +832,4 @@ void screen_init(void) {
 
     ESP_ERROR_CHECK(gpio_set_level(LCD_PIN_BK_LIGHT, LCD_BK_LIGHT_ON_LEVEL));
 }
+#endif

@@ -9,7 +9,7 @@
 #include "lvgl.h"
 #include "board.h"
 #include "esp_timer.h"
-#include "ui/ui.h"
+#include "ui.h"
 
 #define TAG "MAIN"
 
@@ -19,13 +19,12 @@ static void increase_lvgl_tick(void* arg) {
 
 extern void screen_init(void);
 extern void sht20_test_start(void);
+extern void epever_modbus_start(void);
 
 void lvgl_task(void* arg) {
 
     lv_init();
     screen_init();
-
-
     ui_init();
 
     // Tick interface for LVGL
@@ -40,7 +39,10 @@ void lvgl_task(void* arg) {
     extern void lv_demo_widgets(void);
     lv_demo_widgets();
  #endif   
+ #ifdef CONFIG_ZX3D95CE01S_TR_4848 
     sht20_test_start();
+ #endif   
+    epever_modbus_start();
 
     for (;;) {
         lv_task_handler();

@@ -13,9 +13,12 @@ void ui_Screen1_screen_init(void);
 lv_obj_t * ui_Screen1;
 void ui_event_Inverter(lv_event_t * e);
 lv_obj_t * ui_Inverter;
-lv_obj_t * ui_Panel1;
+lv_obj_t * ui_PanelBatt;
 lv_obj_t * ui_Battery;
 lv_obj_t * ui_BattLabelRctn;
+lv_obj_t * ui_PanelChargeDisCharge;
+lv_obj_t * ui_Barchargedischarge;
+lv_obj_t * ui_Labelchargedischarge;
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////

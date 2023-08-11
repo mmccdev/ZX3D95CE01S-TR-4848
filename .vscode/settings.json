@@ -1,4 +1,9 @@
 {
     "idf.adapterTargetName": "esp32s3",
-    "idf.portWin": "COM7"
+    "idf.portWin": "COM9",
+    "files.associations": {
+        "string.h": "c",
+        "freertos.h": "c",
+        "boardzx3d95ce01s_tr_4848.h": "c"
+    }
 }

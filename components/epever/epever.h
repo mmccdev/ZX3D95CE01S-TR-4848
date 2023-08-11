@@ -163,7 +163,7 @@ typedef struct
 } epever_discrete_cc_t;
 
 
-esp_err_t master_init(void);
+esp_err_t master_init(int MB_UART_PORT_NUM,int MB_UART_RXD,int MB_UART_TXD);
 void master_read_load_inverter(volatile epever_load_inverter_t *epever);
 void master_read_status_inverter(volatile epever_status_inverter_t *epever);
 void master_set_status_inverter(bool value);

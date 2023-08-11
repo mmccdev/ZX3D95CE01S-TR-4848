@@ -5,3 +5,5 @@ managed_components
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+components/ui/autosave
+components/ui/backup
