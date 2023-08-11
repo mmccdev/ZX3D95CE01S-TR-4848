@@ -62,7 +62,6 @@ void __epever_modbus_task(void *user_data)
     master_read_setting_cc(&epever_setting_cc);
     struct timeval now = {.tv_sec = epever_setting_cc.RealTimeClock};
     settimeofday(&now, NULL);
-    // master_read_coil_cc(&epever_coil_cc);
     master_read_discrete_cc(&epever_discrete_cc);
     gettimeofday(&start, NULL);
     while (1)
@@ -71,23 +70,24 @@ void __epever_modbus_task(void *user_data)
         // master_set_status_inverter(0);
         //  read all significant
         struct tm *tm_info;
-        // struct tm* tm_info;
         char buffer[16];
         master_read_realtime_cc1(&epever_realtime_1_g);
-        //master_read_realtime_cc2(&epever_realtime_2_g);
-        //master_read_load_inverter(&epever_load_g);
-        //master_read_status_inverter(&epever_status_inverter);
-        //if (epever_status_inverter.InverterOnoff != setinverter)
-        //{
-        //    master_set_status_inverter(setinverter);
-        //    master_read_status_inverter(&epever_status_inverter);
-        //}
-        // if (epever_status_inverter.InverterOnoff == false)
-        //     setled(1);
-        // else
-        //     setled(0);
-        //master_read_statistical_cc1(&epever_statistical_1_g);
-        //master_read_statistical_cc2(&epever_statistical_2_g);
+        master_read_realtime_cc2(&epever_realtime_2_g);
+        master_read_load_inverter(&epever_load_g);
+        master_read_status_inverter(&epever_status_inverter);
+        if (epever_status_inverter.InverterOnoff != setinverter)
+        {
+            master_set_status_inverter(setinverter);
+            master_read_status_inverter(&epever_status_inverter);
+        }
+        if (epever_status_inverter.InverterOnoff == false)
+            //setled(1);
+            lv_imgbtn_set_state(ui_Inverterswitch, LV_IMGBTN_STATE_RELEASED); 
+        else
+            lv_imgbtn_set_state(ui_Inverterswitch, LV_IMGBTN_STATE_CHECKED_PRESSED);
+             //setled(0);
+        master_read_statistical_cc1(&epever_statistical_1_g);
+        master_read_statistical_cc2(&epever_statistical_2_g);
         gettimeofday(&stop, NULL);
         interval_usec = ((stop.tv_sec - start.tv_sec) * 1000000) + (stop.tv_usec - start.tv_usec);
         elapsed_usec = elapsed_usec + interval_usec;
@@ -140,9 +140,31 @@ void __epever_modbus_task(void *user_data)
             }
         }
         // display the stuff
+        lv_bar_set_mode(ui_Barchargedischarge, LV_BAR_MODE_SYMMETRICAL);
         lv_bar_set_value(ui_Barchargedischarge, ((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower + (int64_t)epever_realtime_2_g.ChargingOutputPower) - ((int64_t)epever_load_g.LoadOutputPower + (int64_t)epever_realtime_1_g.DischargingOutputPower + (int64_t)epever_realtime_2_g.DischargingOutputPower))) / 100, LV_ANIM_OFF);
         //lv_label_set_text(ui_Labelchargedischarge, "\n");
         lv_label_set_text_fmt(ui_Labelchargedischarge, "%7.2f",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
+
+        
+        // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
+        {
+            elapsedtimeval.tv_sec = elapsed_usec / 1000000;
+            tm_info = localtime(&elapsedtimeval.tv_sec);
+            // time and date
+            strftime(buffer, 17, "Dlt %j %H:%M:%S", tm_info);
+            // ssd1306_display_mytext(&dev_g, 0, "", &buffer[0], 0);
+            lv_label_set_text(ui_BattLabelRctn, &buffer[0]);
+        }
+        {
+            //char label[8];
+            //sprintf(&label[0], "Dis%cKWh", (full_cdentijoulein > 0) ? ':' : '.');
+            //ssd1306_display_mytext(&dev_g, 5, "%7.3f", &label[0], (((float)(cdentijoulein - full_cdentijoulein) - (float)(centijouleout - full_centijouleout)) / 360000000));
+            float battdischarge = (((float)(cdentijoulein-full_cdentijoulein)-(float)(centijouleout-full_centijouleout))/360000000);
+            //lv_label_set_text_fmt(ui_BattLabelval,"%7.3f",battdischarge);
+            lv_label_set_text_fmt(ui_BattLabelval,"%7.3d %7.3f",(int)(battdischarge*1000),battdischarge);
+            lv_bar_set_value(ui_Batterybar,(int)(battdischarge*1000), LV_ANIM_OFF);
+        }
+
         // ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
         /*
         switch (disppage)

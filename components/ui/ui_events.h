@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-void ClickInverter(lv_event_t * e);
+void ToggleInverter(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

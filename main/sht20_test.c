@@ -22,10 +22,11 @@ void __sht20_test_task(void* user_data)
     while(1){
         float get_tem_data = sht20_get_temperature();
         float get_hum_data = sht20_get_humidity();
-        char label[22];
-        sprintf(&label[0],"Temp %5.3f Hum %5.3f",get_tem_data,get_hum_data);        
+        //char label[22];
+        //sprintf(&label[0],"Temp %5.3f Hum %5.3f",get_tem_data,get_hum_data);   
+        lv_label_set_text_fmt(ui_EnvironLabelRctn,"Temp %3.1f Hum %3.1f",get_tem_data,get_hum_data);   
         //printf("sht20: %f/%f\n", get_tem_data, get_hum_data);
-        lv_label_set_text(ui_BattLabelRctn, &label[0]); //22
+        //lv_label_set_text(ui_BattLabelRctn, &label[0]); //22
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);

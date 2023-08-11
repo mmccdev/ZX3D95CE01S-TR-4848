@@ -9,3 +9,8 @@ void ClickInverter(lv_event_t * e)
 {
 	// Your code here
 }
+
+void ToggleInverter(lv_event_t * e)
+{
+	// Your code here
+}

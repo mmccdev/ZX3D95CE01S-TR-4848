@@ -11,14 +11,17 @@
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 lv_obj_t * ui_Screen1;
-void ui_event_Inverter(lv_event_t * e);
-lv_obj_t * ui_Inverter;
 lv_obj_t * ui_PanelBatt;
-lv_obj_t * ui_Battery;
+lv_obj_t * ui_Batterybar;
 lv_obj_t * ui_BattLabelRctn;
+lv_obj_t * ui_BattLabelval;
+lv_obj_t * ui_BatteryImage;
 lv_obj_t * ui_PanelChargeDisCharge;
 lv_obj_t * ui_Barchargedischarge;
 lv_obj_t * ui_Labelchargedischarge;
+void ui_event_Inverterswitch(lv_event_t * e);
+lv_obj_t * ui_Inverterswitch;
+lv_obj_t * ui_EnvironLabelRctn;
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -32,12 +35,12 @@ lv_obj_t * ui____initial_actions0;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event_Inverter(lv_event_t * e)
+void ui_event_Inverterswitch(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
-        ClickInverter(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ToggleInverter(e);
     }
 }
 
