@@ -14,3 +14,13 @@ void ToggleInverter(lv_event_t * e)
 {
 	// Your code here
 }
+
+void pipo(lv_event_t * e)
+{
+	// Your code here
+}
+
+void pipooqw(lv_event_t * e)
+{
+	// Your code here
+}

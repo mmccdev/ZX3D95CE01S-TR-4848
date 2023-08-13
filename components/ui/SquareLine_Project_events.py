@@ -6,3 +6,7 @@ def ClickInverter(event_struct):
 def ToggleInverter(event_struct):
     return
 
+
+def pipo(event_struct):
+    return
+

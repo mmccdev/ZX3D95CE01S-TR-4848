@@ -4,8 +4,22 @@ menu "Main Config"
         int "Size of buffer for averaging the measurements"
     range 2 200
     default 20
-    help
-        Size of buffer for averaging the measurements
+    config MAIN_TIME_RECHECK
+        int "Timeout time in minutes to wait for recheck battery full"
+    range 2 200
+    default 60
+    config MAIN_VOLTFULL
+        int "Voltage * 10 at which to consider te battery full"
+    range 1200 6400
+    default 1400       
+    config MAIN_AMPSOLARINVERTEROFF
+        int "Amps from the solar panel * 10 below which to consider switching off the inverter"
+    range 1200 60000
+    default 15000
+    config MAIN_AMPINVERTEROFF
+        int "Amps the inverter delivers * 10 below which to consider switching off the inverter"
+    range 1200 6400
+    default 2400       
     choice WT_BOARD
         prompt "Select borad"
         default WT32_SC01

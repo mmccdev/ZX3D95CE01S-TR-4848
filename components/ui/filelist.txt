@@ -5,3 +5,6 @@ ui_helpers.c
 images/ui_img_battery_png.c
 images/ui_img_offb_png.c
 images/ui_img_onb_png.c
+images/ui_img_sun_png.c
+images/ui_img_dark_png.c
+images/ui_img_charge_png.c

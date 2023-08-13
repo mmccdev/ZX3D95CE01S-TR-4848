@@ -34,5 +34,5 @@ void __sht20_test_task(void* user_data)
 
 void sht20_test_start(void)
 {
-    xTaskCreatePinnedToCore(__sht20_test_task, "sht20", 4 * 1024, NULL, 5, NULL, 0);
+    xTaskCreatePinnedToCore(__sht20_test_task, "sht20", 4 * 1024, NULL, 4, NULL, 0);
 }

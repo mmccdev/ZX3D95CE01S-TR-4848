@@ -30,6 +30,27 @@ volatile epever_statistical_cc_t epever_statistical_2_g;
 volatile epever_rated_cc_t epever_rated_g;
 volatile bool setinverter = true;
 
+void ui_event_Inverterswitch(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    // lv_obj_t * target = lv_event_get_target(e);
+    if (event_code == LV_EVENT_VALUE_CHANGED)
+    {
+        //  lv_obj_has_state(ui_Inverterswitch, LV_STATE_CHECKED)
+        if (setinverter == false)
+        {
+            // it looks like esp-modbus is not thread safe so pass a variable
+            // master_set_status_inverter(1);
+            setinverter = true;
+        }
+        else
+        {
+            // master_set_status_inverter(0);
+            setinverter = false;
+        }
+    }
+}
+
 void __epever_modbus_task(void *user_data)
 {
     uint32_t loop = 1;
@@ -64,6 +85,9 @@ void __epever_modbus_task(void *user_data)
     settimeofday(&now, NULL);
     master_read_discrete_cc(&epever_discrete_cc);
     gettimeofday(&start, NULL);
+
+    lv_obj_add_event_cb(ui_Inverterbutton, ui_event_Inverterswitch, LV_EVENT_ALL, NULL);
+
     while (1)
     {
         ESP_LOGI("LOOP ", "%d", loop);
@@ -82,9 +106,9 @@ void __epever_modbus_task(void *user_data)
         }
         if (epever_status_inverter.InverterOnoff == false)
             //setled(1);
-            lv_imgbtn_set_state(ui_Inverterswitch, LV_IMGBTN_STATE_RELEASED); 
+            lv_imgbtn_set_state(ui_Inverterbutton, LV_IMGBTN_STATE_RELEASED); 
         else
-            lv_imgbtn_set_state(ui_Inverterswitch, LV_IMGBTN_STATE_CHECKED_PRESSED);
+            lv_imgbtn_set_state(ui_Inverterbutton, LV_IMGBTN_STATE_CHECKED_PRESSED);
              //setled(0);
         master_read_statistical_cc1(&epever_statistical_1_g);
         master_read_statistical_cc2(&epever_statistical_2_g);
@@ -140,32 +164,38 @@ void __epever_modbus_task(void *user_data)
             }
         }
         // display the stuff
-        lv_bar_set_mode(ui_Barchargedischarge, LV_BAR_MODE_SYMMETRICAL);
-        lv_bar_set_value(ui_Barchargedischarge, ((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower + (int64_t)epever_realtime_2_g.ChargingOutputPower) - ((int64_t)epever_load_g.LoadOutputPower + (int64_t)epever_realtime_1_g.DischargingOutputPower + (int64_t)epever_realtime_2_g.DischargingOutputPower))) / 100, LV_ANIM_OFF);
-        //lv_label_set_text(ui_Labelchargedischarge, "\n");
-        lv_label_set_text_fmt(ui_Labelchargedischarge, "%7.2f",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
-
+        //lv_bar_set_mode(ui_Barchargedischarge, LV_BAR_MODE_SYMMETRICAL);
+        //lv_bar_set_value(ui_Barchargedischarge, ((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower + (int64_t)epever_realtime_2_g.ChargingOutputPower) - ((int64_t)epever_load_g.LoadOutputPower + (int64_t)epever_realtime_1_g.DischargingOutputPower + (int64_t)epever_realtime_2_g.DischargingOutputPower))) / 100, LV_ANIM_OFF);
+        lv_label_set_text_fmt(ui_LabelSunnosun, "%7.2f",((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100);
+        lv_bar_set_value(ui_SliderSunnosun, ((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100, LV_ANIM_OFF);
         
+        lv_label_set_text_fmt(ui_Labelchargedischarge, "%7.2f",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
+        lv_bar_set_value(ui_SliderChargeDischarge, ((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100, LV_ANIM_OFF);
         // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
         {
-            elapsedtimeval.tv_sec = elapsed_usec / 1000000;
-            tm_info = localtime(&elapsedtimeval.tv_sec);
-            // time and date
-            strftime(buffer, 17, "Dlt %j %H:%M:%S", tm_info);
-            // ssd1306_display_mytext(&dev_g, 0, "", &buffer[0], 0);
-            lv_label_set_text(ui_BattLabelRctn, &buffer[0]);
+
         }
         {
             //char label[8];
             //sprintf(&label[0], "Dis%cKWh", (full_cdentijoulein > 0) ? ':' : '.');
             //ssd1306_display_mytext(&dev_g, 5, "%7.3f", &label[0], (((float)(cdentijoulein - full_cdentijoulein) - (float)(centijouleout - full_centijouleout)) / 360000000));
             float battdischarge = (((float)(cdentijoulein-full_cdentijoulein)-(float)(centijouleout-full_centijouleout))/360000000);
-            //lv_label_set_text_fmt(ui_BattLabelval,"%7.3f",battdischarge);
-            lv_label_set_text_fmt(ui_BattLabelval,"%7.3d %7.3f",(int)(battdischarge*1000),battdischarge);
+            elapsedtimeval.tv_sec = elapsed_usec / 1000000;
+            tm_info = localtime(&elapsedtimeval.tv_sec);
+            // time and date
+            strftime(buffer, 17, "Dlt %j %H:%M:%S", tm_info);
+            // ssd1306_display_mytext(&dev_g, 0, "", &buffer[0], 0);
+            //lv_label_set_text(ui_BattLabelRctn, &buffer[0]);
+
+            lv_label_set_text_fmt(ui_BattLabelval,"%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f",&buffer[0],battdischarge,loop,(float)interval_usec/1000000);
+
+
             lv_bar_set_value(ui_Batterybar,(int)(battdischarge*1000), LV_ANIM_OFF);
         }
-
-        // ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
+        tm_info = localtime(&start.tv_sec);
+        //sprintf(&label[0],"%02d.%02d  %1d",tm_info->tm_hour,tm_info->tm_min,disppage);
+        lv_label_set_text_fmt(ui_Labeltime,"%02d:%02d",tm_info->tm_hour,tm_info->tm_min);
+        // ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((fl oat)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
         /*
         switch (disppage)
         {
@@ -269,12 +299,12 @@ void __epever_modbus_task(void *user_data)
         // loop = (loop+1)%100000000;
         loop = (loop + 1) % 0xFFFFFFF;
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
 }
 
 void epever_modbus_start(void)
 {
-    xTaskCreatePinnedToCore(__epever_modbus_task, "epever modbus", 4 * 1024, NULL, 7, NULL, 1);
+    xTaskCreatePinnedToCore(__epever_modbus_task, "epever modbus", 4 * 1024, NULL, 5, NULL, 1);
 }

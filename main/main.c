@@ -51,5 +51,5 @@ void lvgl_task(void* arg) {
 }
 
 void app_main(void) {
-    xTaskCreatePinnedToCore(lvgl_task, NULL, 8 * 1024, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore(lvgl_task, NULL, 8 * 1024, NULL, 4, NULL, 1);
 }
