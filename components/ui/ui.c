@@ -20,13 +20,13 @@ lv_obj_t * ui_Inverterbutton;
 lv_obj_t * ui_EnvironLabelRctn;
 lv_obj_t * ui_SunnosunPanel;
 lv_obj_t * ui_SliderSunnosun;
-lv_obj_t * ui_LabelSunnosun;
 lv_obj_t * ui_ImageSun;
 lv_obj_t * ui_ImageDark;
+lv_obj_t * ui_LabelSunnosun;
 lv_obj_t * ui_PanelChargeDisCharge;
 lv_obj_t * ui_SliderChargeDischarge;
-lv_obj_t * ui_Labelchargedischarge;
 lv_obj_t * ui_ImageCharge;
+lv_obj_t * ui_Labelchargedischarge;
 lv_obj_t * ui_Labeltime;
 lv_obj_t * ui____initial_actions0;
 

@@ -29,6 +29,13 @@ volatile epever_statistical_cc_t epever_statistical_1_g;
 volatile epever_statistical_cc_t epever_statistical_2_g;
 volatile epever_rated_cc_t epever_rated_g;
 volatile bool setinverter = true;
+#define measurecount CONFIG_MAIN_AVGBUF
+int swperiod = measurecount * 2;
+void arminverter()
+{
+    setinverter = false;
+    swperiod = 1000; // based on a loop time of 0.5 a second 500 seconds
+}
 
 void ui_event_Inverterswitch(lv_event_t *e)
 {
@@ -46,9 +53,25 @@ void ui_event_Inverterswitch(lv_event_t *e)
         else
         {
             // master_set_status_inverter(0);
-            setinverter = false;
+            arminverter();
+            //setinverter = false;
         }
     }
+}
+
+void ui_event_SliderChargeDischargedraw(lv_event_t *e)
+{
+    lv_obj_draw_part_dsc_t *dsc = lv_event_get_draw_part_dsc(e);
+    if (dsc->type != LV_OBJ_DRAW_PART_RECTANGLE)
+        return;
+    lv_obj_set_x(ui_Labelchargedischarge, dsc->draw_area->x1);
+}
+void ui_event_SliderSunnosun(lv_event_t *e)
+{
+    lv_obj_draw_part_dsc_t *dsc = lv_event_get_draw_part_dsc(e);
+    if (dsc->type != LV_OBJ_DRAW_PART_RECTANGLE)
+        return;
+    lv_obj_set_x(ui_LabelSunnosun, dsc->draw_area->x1);
 }
 
 void __epever_modbus_task(void *user_data)
@@ -65,8 +88,7 @@ void __epever_modbus_task(void *user_data)
     unsigned long long full_cdentijoulein = 0;
     unsigned long long full_centijouleout = 0;
     // bool inverteron = true;
-#define measurecount CONFIG_MAIN_AVGBUF
-    int swperiod = measurecount * 2;
+
     // int blankcount=0;
     struct timeval start, stop; //, inverterarm={0};
     struct measures sum = {0};
@@ -87,14 +109,17 @@ void __epever_modbus_task(void *user_data)
     gettimeofday(&start, NULL);
 
     lv_obj_add_event_cb(ui_Inverterbutton, ui_event_Inverterswitch, LV_EVENT_ALL, NULL);
-
+    lv_obj_add_event_cb(ui_SliderChargeDischarge, ui_event_SliderChargeDischargedraw, LV_EVENT_DRAW_PART_BEGIN , NULL);
+    lv_obj_add_event_cb(ui_SliderSunnosun, ui_event_SliderSunnosun, LV_EVENT_DRAW_PART_BEGIN , NULL);
+            
     while (1)
     {
         ESP_LOGI("LOOP ", "%d", loop);
         // master_set_status_inverter(0);
         //  read all significant
         struct tm *tm_info;
-        char buffer[16];
+        char buffer[18];
+        char buffer2[18];
         master_read_realtime_cc1(&epever_realtime_1_g);
         master_read_realtime_cc2(&epever_realtime_2_g);
         master_read_load_inverter(&epever_load_g);
@@ -154,8 +179,7 @@ void __epever_modbus_task(void *user_data)
             else if ((avg.PInCC < 15000) && (avg.POutInv < 2400)) // if less than 150 watt from the panels and below 24 watt demand
             // else if (avg.POutInv<2400)  // below 24 watt
             {
-                setinverter = false;
-                swperiod = 1000; // based on a loop time of 0.5 a second 500 seconds
+                arminverter();
             }
             else
             {
@@ -183,11 +207,17 @@ void __epever_modbus_task(void *user_data)
             elapsedtimeval.tv_sec = elapsed_usec / 1000000;
             tm_info = localtime(&elapsedtimeval.tv_sec);
             // time and date
-            strftime(buffer, 17, "Dlt %j %H:%M:%S", tm_info);
+            //sizeof(buffer)
+            strftime(buffer,sizeof(buffer) , "Dlt %j %H:%M:%S", tm_info);
             // ssd1306_display_mytext(&dev_g, 0, "", &buffer[0], 0);
             //lv_label_set_text(ui_BattLabelRctn, &buffer[0]);
-
-            lv_label_set_text_fmt(ui_BattLabelval,"%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f",&buffer[0],battdischarge,loop,(float)interval_usec/1000000);
+            
+            elapsedtimeval.tv_sec = (elapsed_usec - full_elapsed_usec)/1000000;
+            tm_info = localtime(&elapsedtimeval.tv_sec);
+            strftime(buffer2,sizeof(buffer2) , "D B %j %H:%M:%S", tm_info);
+                // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
+            // time and date
+            lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f",&buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000);
 
 
             lv_bar_set_value(ui_Batterybar,(int)(battdischarge*1000), LV_ANIM_OFF);
