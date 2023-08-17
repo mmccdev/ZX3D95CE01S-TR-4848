@@ -44,7 +44,7 @@ discrete_reg_params_t discrete_reg_params;
 #define UPDATE_CIDS_TIMEOUT_TICS (UPDATE_CIDS_TIMEOUT_MS / portTICK_PERIOD_MS)
 
 // Timeout between polls
-#define POLL_TIMEOUT_MS (2) // 1 was not enough leading to timeouts 
+#define POLL_TIMEOUT_MS (3) // 1 was not enough leading to timeouts 
 // #define POLL_TIMEOUT_TICS               (POLL_TIMEOUT_MS / portTICK_RATE_MS)
 #define POLL_TIMEOUT_TICS (POLL_TIMEOUT_MS / portTICK_PERIOD_MS)
 
@@ -270,16 +270,16 @@ esp_err_t master_init(int MB_UART_PORT_NUM,int MB_UART_RXD,int MB_UART_TXD)
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
                  "mb controller set descriptor fail, returns(0x%x).",
                  (unsigned int)err);
-    ESP_LOGI(MASTER_TAG, "Modbus master stack initialized...");
+    ESP_LOGV(MASTER_TAG, "Modbus master stack initialized...");
     return err;
 }
 
 void master_read_load_inverter(volatile epever_load_inverter_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading Load....");
+    ESP_LOGV(MASTER_TAG, "Begin reading Load....");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
-    ESP_LOGI(MASTER_TAG, "InverterLoad");
+    ESP_LOGV(MASTER_TAG, "InverterLoad");
     err = mbc_master_get_cid_info(InverterLoad, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -302,15 +302,15 @@ void master_read_load_inverter(volatile epever_load_inverter_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "End reading Load.");
+    ESP_LOGV(MASTER_TAG, "End reading Load.");
 }
 void master_read_status_inverter(volatile epever_status_inverter_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin master_read_status_inverter....");
+    ESP_LOGV(MASTER_TAG, "Begin master_read_status_inverter....");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "InverterLocalorRemote");
+    ESP_LOGV(MASTER_TAG, "InverterLocalorRemote");
     err = mbc_master_get_cid_info(InverterLocalorRemote, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -330,7 +330,7 @@ void master_read_status_inverter(volatile epever_status_inverter_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "InverterOnoff");
+    ESP_LOGV(MASTER_TAG, "InverterOnoff");
     err = mbc_master_get_cid_info(InverterOnoff, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -350,12 +350,12 @@ void master_read_status_inverter(volatile epever_status_inverter_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "End master_read_status_inverter.");
+    ESP_LOGV(MASTER_TAG, "End master_read_status_inverter.");
 }
 
 void master_set_status_inverter(bool value)
 {
-    ESP_LOGI(MASTER_TAG, "Begin master_set_status_inverter");
+    ESP_LOGV(MASTER_TAG, "Begin master_set_status_inverter");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
     uint8_t type = 0;
@@ -365,11 +365,11 @@ void master_set_status_inverter(bool value)
     err = mbc_master_set_parameter(InverterLocalorRemote, (char *)param_descriptor->param_key, (uint8_t *)&val2, &type);
     if (err == ESP_OK)
     {
-        ESP_LOGI(MASTER_TAG, "set local remote ok.");
+        ESP_LOGV(MASTER_TAG, "set local remote ok.");
     }
     else
     {
-        ESP_LOGI(MASTER_TAG, "set local remote fail.");
+        ESP_LOGV(MASTER_TAG, "set local remote fail.");
     }
     vTaskDelay(UPDATE_CIDS_TIMEOUT_TICS);
     param_descriptor = NULL;
@@ -386,24 +386,24 @@ void master_set_status_inverter(bool value)
     err = mbc_master_set_parameter(InverterOnoff, (char *)param_descriptor->param_key, (uint8_t *)&val2, &type);
     if (err == ESP_OK)
     {
-        ESP_LOGI(MASTER_TAG, "set inverter on off ok.");
+        ESP_LOGV(MASTER_TAG, "set inverter on off ok.");
     }
     else
     {
-        ESP_LOGI(MASTER_TAG, "set inverter on off fail.");
+        ESP_LOGV(MASTER_TAG, "set inverter on off fail.");
     }
 
     vTaskDelay(UPDATE_CIDS_TIMEOUT_TICS);
-    ESP_LOGI(MASTER_TAG, "End master_set_status_inverter.");
+    ESP_LOGV(MASTER_TAG, "End master_set_status_inverter.");
 }
 
 void master_read_rated_cc(volatile epever_rated_cc_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading....");
+    ESP_LOGV(MASTER_TAG, "Begin reading....");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "CC1Rated1");
+    ESP_LOGV(MASTER_TAG, "CC1Rated1");
     err = mbc_master_get_cid_info(CC1Rated1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -428,7 +428,7 @@ void master_read_rated_cc(volatile epever_rated_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "CC1Rated2");
+    ESP_LOGV(MASTER_TAG, "CC1Rated2");
     err = mbc_master_get_cid_info(CC1Rated2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -444,16 +444,16 @@ void master_read_rated_cc(volatile epever_rated_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "End Rated reading.");
+    ESP_LOGV(MASTER_TAG, "End Rated reading.");
 }
 
 void master_read_realtime_cc1(volatile epever_realtime_cc_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading Realtime.1...");
+    ESP_LOGV(MASTER_TAG, "Begin reading Realtime.1...");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "CC1Realtime1");
+    ESP_LOGV(MASTER_TAG, "CC1Realtime1");
     err = mbc_master_get_cid_info(CC1Realtime1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -475,7 +475,7 @@ void master_read_realtime_cc1(volatile epever_realtime_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "CC1Realtime2");
+    ESP_LOGV(MASTER_TAG, "CC1Realtime2");
     err = mbc_master_get_cid_info(CC1Realtime2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -499,7 +499,7 @@ void master_read_realtime_cc1(volatile epever_realtime_cc_t *epever)
 
     // timeout between polls
     /*
-        ESP_LOGI(MASTER_TAG,"CC1Realtime3");
+        ESP_LOGV(MASTER_TAG,"CC1Realtime3");
         err = mbc_master_get_cid_info(CC1Realtime3, &param_descriptor);
         if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL)) {
             if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL)) {
@@ -517,7 +517,7 @@ void master_read_realtime_cc1(volatile epever_realtime_cc_t *epever)
         vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
 
-        ESP_LOGI(MASTER_TAG,"CC1Realtime4");
+        ESP_LOGV(MASTER_TAG,"CC1Realtime4");
         err = mbc_master_get_cid_info(CC1Realtime4, &param_descriptor);
         if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL)) {
             if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL)) {
@@ -533,7 +533,7 @@ void master_read_realtime_cc1(volatile epever_realtime_cc_t *epever)
         }
         vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-        ESP_LOGI(MASTER_TAG,"CC1Realtime5");
+        ESP_LOGV(MASTER_TAG,"CC1Realtime5");
         err = mbc_master_get_cid_info(CC1Realtime5, &param_descriptor);
         if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL)) {
             if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL)) {
@@ -550,18 +550,18 @@ void master_read_realtime_cc1(volatile epever_realtime_cc_t *epever)
         }
         vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
     */
-    ESP_LOGI(MASTER_TAG, "End reading Realtime 1.");
+    ESP_LOGV(MASTER_TAG, "End reading Realtime 1.");
 }
 
 void master_read_realtime_cc2(volatile epever_realtime_cc_t *epever)
 {
 
-    ESP_LOGI(MASTER_TAG, "Begin reading Realtime 2....");
+    ESP_LOGV(MASTER_TAG, "Begin reading Realtime 2....");
 
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "CC2Realtime1");
+    ESP_LOGV(MASTER_TAG, "CC2Realtime1");
     err = mbc_master_get_cid_info(CC2Realtime1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -582,7 +582,7 @@ void master_read_realtime_cc2(volatile epever_realtime_cc_t *epever)
         }
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
-    ESP_LOGI(MASTER_TAG, "CC2Realtime2");
+    ESP_LOGV(MASTER_TAG, "CC2Realtime2");
     err = mbc_master_get_cid_info(CC2Realtime2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -603,16 +603,16 @@ void master_read_realtime_cc2(volatile epever_realtime_cc_t *epever)
         }
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
-    ESP_LOGI(MASTER_TAG, "End reading Realtime 2.");
+    ESP_LOGV(MASTER_TAG, "End reading Realtime 2.");
 }
 
 void master_read_statistical_cc1(volatile epever_statistical_cc_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading Statistical..1..");
+    ESP_LOGV(MASTER_TAG, "Begin reading Statistical..1..");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "Statistical11");
+    ESP_LOGV(MASTER_TAG, "Statistical11");
     err = mbc_master_get_cid_info(CC1Statistical1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -643,7 +643,7 @@ void master_read_statistical_cc1(volatile epever_statistical_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "Statistical12");
+    ESP_LOGV(MASTER_TAG, "Statistical12");
     err = mbc_master_get_cid_info(CC1Statistical2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -661,16 +661,16 @@ void master_read_statistical_cc1(volatile epever_statistical_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "End reading Statistical.1.");
+    ESP_LOGV(MASTER_TAG, "End reading Statistical.1.");
 }
 
 void master_read_statistical_cc2(volatile epever_statistical_cc_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading Statistical..2..");
+    ESP_LOGV(MASTER_TAG, "Begin reading Statistical..2..");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "Statistical21");
+    ESP_LOGV(MASTER_TAG, "Statistical21");
     err = mbc_master_get_cid_info(CC2Statistical1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -702,7 +702,7 @@ void master_read_statistical_cc2(volatile epever_statistical_cc_t *epever)
 
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "Statistical22");
+    ESP_LOGV(MASTER_TAG, "Statistical22");
     err = mbc_master_get_cid_info(CC2Statistical2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -720,16 +720,16 @@ void master_read_statistical_cc2(volatile epever_statistical_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
 
-    ESP_LOGI(MASTER_TAG, "End reading Statistical.2.");
+    ESP_LOGV(MASTER_TAG, "End reading Statistical.2.");
 }
 
 void master_read_setting_cc(volatile epever_setting_cc_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading Setting....");
+    ESP_LOGV(MASTER_TAG, "Begin reading Setting....");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting1");
+    ESP_LOGV(MASTER_TAG, "CC1Setting1");
     err = mbc_master_get_cid_info(CC1Setting1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -759,7 +759,7 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting2");
+    ESP_LOGV(MASTER_TAG, "CC1Setting2");
     err = mbc_master_get_cid_info(CC1Setting2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -799,7 +799,7 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting3");
+    ESP_LOGV(MASTER_TAG, "CC1Setting3");
     err = mbc_master_get_cid_info(CC1Setting3, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -817,7 +817,7 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting4");
+    ESP_LOGV(MASTER_TAG, "CC1Setting4");
     err = mbc_master_get_cid_info(CC1Setting4, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -844,7 +844,7 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting5");
+    ESP_LOGV(MASTER_TAG, "CC1Setting5");
     err = mbc_master_get_cid_info(CC1Setting5, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -860,7 +860,7 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting6");
+    ESP_LOGV(MASTER_TAG, "CC1Setting6");
     err = mbc_master_get_cid_info(CC1Setting6, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -877,7 +877,7 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting7");
+    ESP_LOGV(MASTER_TAG, "CC1Setting7");
     err = mbc_master_get_cid_info(CC1Setting7, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -898,7 +898,7 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Setting8");
+    ESP_LOGV(MASTER_TAG, "CC1Setting8");
     err = mbc_master_get_cid_info(CC1Setting8, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -915,16 +915,16 @@ void master_read_setting_cc(volatile epever_setting_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "End reading Setting.");
+    ESP_LOGV(MASTER_TAG, "End reading Setting.");
 }
 
 void master_read_coil_cc(volatile epever_coil_cc_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading coil....");
+    ESP_LOGV(MASTER_TAG, "Begin reading coil....");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "CC1Coil1");
+    ESP_LOGV(MASTER_TAG, "CC1Coil1");
     err = mbc_master_get_cid_info(CC1Coil1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -940,7 +940,7 @@ void master_read_coil_cc(volatile epever_coil_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Coil2");
+    ESP_LOGV(MASTER_TAG, "CC1Coil2");
     err = mbc_master_get_cid_info(CC1Coil2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -957,16 +957,16 @@ void master_read_coil_cc(volatile epever_coil_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "End reading coil.");
+    ESP_LOGV(MASTER_TAG, "End reading coil.");
 }
 
 void master_read_discrete_cc(volatile epever_discrete_cc_t *epever)
 {
-    ESP_LOGI(MASTER_TAG, "Begin reading discrete....");
+    ESP_LOGV(MASTER_TAG, "Begin reading discrete....");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
-    ESP_LOGI(MASTER_TAG, "CC1Discrete1");
+    ESP_LOGV(MASTER_TAG, "CC1Discrete1");
     err = mbc_master_get_cid_info(CC1CC1Discrete1, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -982,7 +982,7 @@ void master_read_discrete_cc(volatile epever_discrete_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "CC1Discrete2");
+    ESP_LOGV(MASTER_TAG, "CC1Discrete2");
     err = mbc_master_get_cid_info(CC1CC1Discrete2, &param_descriptor);
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL))
     {
@@ -998,12 +998,12 @@ void master_read_discrete_cc(volatile epever_discrete_cc_t *epever)
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
 
-    ESP_LOGI(MASTER_TAG, "End reading discrete.");
+    ESP_LOGV(MASTER_TAG, "End reading discrete.");
 }
 
 void master_write_coil_cc(bool value)
 {
-    ESP_LOGI(MASTER_TAG, "Begin master_write_coil");
+    ESP_LOGV(MASTER_TAG, "Begin master_write_coil");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
 
@@ -1012,11 +1012,11 @@ void master_write_coil_cc(bool value)
     err = mbc_master_set_parameter(CC1Coil1, (char *)param_descriptor->param_key, (uint8_t *)&value, &type);
     if (err == ESP_OK)
     {
-        ESP_LOGI(MASTER_TAG, "Write coil ok.");
+        ESP_LOGV(MASTER_TAG, "Write coil ok.");
     }
     else
     {
-        ESP_LOGI(MASTER_TAG, "Write coil fail.");
+        ESP_LOGV(MASTER_TAG, "Write coil fail.");
     }
     /*
     if ((err != ESP_ERR_NOT_FOUND) && (param_descriptor != NULL)) {
@@ -1028,5 +1028,5 @@ void master_write_coil_cc(bool value)
     }*/
 
     vTaskDelay(POLL_TIMEOUT_TICS);
-    ESP_LOGI(MASTER_TAG, "End write coil.");
+    ESP_LOGV(MASTER_TAG, "End write coil.");
 }

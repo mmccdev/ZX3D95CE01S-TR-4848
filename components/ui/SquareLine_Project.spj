@@ -2140,37 +2140,12 @@
                             "nid": -695794144,
                             "strtype": "_style/Bg_Color",
                             "intarray": [
-                              0,
-                              0,
-                              128,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": 1788929964,
-                            "strtype": "_style/Bg_gradiens_Color",
-                            "intarray": [
+                              255,
                               255,
                               255,
                               0
                             ],
                             "InheritedType": 7
-                          },
-                          {
-                            "nid": -1758113556,
-                            "strtype": "_style/Bg_gradient_params",
-                            "intarray": [
-                              0,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": -1524874861,
-                            "strtype": "_style/Gradient direction",
-                            "strval": "HOR",
-                            "InheritedType": 3
                           }
                         ],
                         "InheritedType": 1
@@ -2193,37 +2168,12 @@
                             "nid": 1231104465,
                             "strtype": "_style/Bg_Color",
                             "intarray": [
-                              0,
-                              0,
-                              128,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": 1308607245,
-                            "strtype": "_style/Bg_gradiens_Color",
-                            "intarray": [
+                              255,
                               255,
                               255,
                               0
                             ],
                             "InheritedType": 7
-                          },
-                          {
-                            "nid": 528983001,
-                            "strtype": "_style/Bg_gradient_params",
-                            "intarray": [
-                              0,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": -1557158673,
-                            "strtype": "_style/Gradient direction",
-                            "strval": "HOR",
-                            "InheritedType": 3
                           }
                         ],
                         "InheritedType": 1
@@ -2250,16 +2200,6 @@
                               0,
                               0,
                               0
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": -1808816122,
-                            "strtype": "_style/Bg_gradiens_Color",
-                            "intarray": [
-                              255,
-                              255,
-                              255
                             ],
                             "InheritedType": 7
                           },
@@ -2937,7 +2877,7 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      410,
+                      0,
                       12
                     ],
                     "InheritedType": 7
@@ -3179,9 +3119,9 @@
                             "nid": -38821163,
                             "strtype": "_style/Text_Color",
                             "intarray": [
-                              255,
-                              255,
-                              255,
+                              0,
+                              0,
+                              0,
                               255
                             ],
                             "InheritedType": 7
@@ -3202,10 +3142,10 @@
                             "nid": 234884213,
                             "strtype": "_style/Bg_Color",
                             "intarray": [
-                              0,
-                              0,
-                              0,
-                              64
+                              255,
+                              255,
+                              255,
+                              128
                             ],
                             "InheritedType": 7
                           }
@@ -3508,15 +3448,6 @@
                         "InheritedType": 7
                       },
                       {
-                        "nid": -1493429531,
-                        "strtype": "_style/Bg_gradient_params",
-                        "intarray": [
-                          40,
-                          295
-                        ],
-                        "InheritedType": 7
-                      },
-                      {
                         "nid": 1093887451,
                         "strtype": "_style/Gradient direction",
                         "strval": "HOR",
@@ -3533,7 +3464,43 @@
               },
               {
                 "part": "lv.PART.SCROLLBAR",
-                "childs": [],
+                "childs": [
+                  {
+                    "nid": 886924487,
+                    "strtype": "_style/StyleState",
+                    "strval": "DEFAULT",
+                    "childs": [
+                      {
+                        "nid": -655658303,
+                        "strtype": "_style/Bg_Color",
+                        "intarray": [
+                          0,
+                          0,
+                          128,
+                          255
+                        ],
+                        "InheritedType": 7
+                      },
+                      {
+                        "nid": -1777350507,
+                        "strtype": "_style/Bg_gradiens_Color",
+                        "intarray": [
+                          255,
+                          255,
+                          0
+                        ],
+                        "InheritedType": 7
+                      },
+                      {
+                        "nid": -918782034,
+                        "strtype": "_style/Gradient direction",
+                        "strval": "HOR",
+                        "InheritedType": 3
+                      }
+                    ],
+                    "InheritedType": 1
+                  }
+                ],
                 "nid": 531914339,
                 "strtype": "PANEL/Style_scrollbar",
                 "strval": "lv.PART.SCROLLBAR, Rectangle, Pad",
@@ -3778,7 +3745,6 @@
                   {
                     "nid": 1099438368,
                     "strtype": "SLIDER/Value",
-                    "integer": -1000,
                     "InheritedType": 6
                   },
                   {
@@ -3799,36 +3765,11 @@
                             "strtype": "_style/Bg_Color",
                             "intarray": [
                               255,
-                              0,
-                              0,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": -579925373,
-                            "strtype": "_style/Bg_gradiens_Color",
-                            "intarray": [
-                              0,
+                              255,
                               255,
                               0
                             ],
                             "InheritedType": 7
-                          },
-                          {
-                            "nid": -914202156,
-                            "strtype": "_style/Bg_gradient_params",
-                            "intarray": [
-                              127,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": -318493928,
-                            "strtype": "_style/Gradient direction",
-                            "strval": "HOR",
-                            "InheritedType": 3
                           }
                         ],
                         "InheritedType": 1
@@ -3852,36 +3793,11 @@
                             "strtype": "_style/Bg_Color",
                             "intarray": [
                               255,
-                              0,
-                              0,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": 203895103,
-                            "strtype": "_style/Bg_gradiens_Color",
-                            "intarray": [
-                              0,
+                              255,
                               255,
                               0
                             ],
                             "InheritedType": 7
-                          },
-                          {
-                            "nid": 694309114,
-                            "strtype": "_style/Bg_gradient_params",
-                            "intarray": [
-                              127,
-                              255
-                            ],
-                            "InheritedType": 7
-                          },
-                          {
-                            "nid": 902910561,
-                            "strtype": "_style/Gradient direction",
-                            "strval": "HOR",
-                            "InheritedType": 3
                           }
                         ],
                         "InheritedType": 1
@@ -3904,9 +3820,9 @@
                             "nid": -981754858,
                             "strtype": "_style/Bg_Color",
                             "intarray": [
-                              0,
-                              0,
-                              0,
+                              255,
+                              255,
+                              255,
                               0
                             ],
                             "InheritedType": 7
@@ -3953,7 +3869,8 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "SLIDER"
+                "saved_objtypeKey": "SLIDER",
+                "tree_closed": true
               },
               {
                 "guid": "GUID37265773-755215S4662225",
@@ -4863,8 +4780,8 @@
                         "nid": -1402066532,
                         "strtype": "_style/Bg_gradient_params",
                         "intarray": [
-                          40,
-                          295
+                          80,
+                          255
                         ],
                         "InheritedType": 7
                       },
@@ -4885,7 +4802,52 @@
               },
               {
                 "part": "lv.PART.SCROLLBAR",
-                "childs": [],
+                "childs": [
+                  {
+                    "nid": -1302929344,
+                    "strtype": "_style/StyleState",
+                    "strval": "DEFAULT",
+                    "childs": [
+                      {
+                        "nid": 1221480226,
+                        "strtype": "_style/Bg_Color",
+                        "intarray": [
+                          255,
+                          255,
+                          255,
+                          255
+                        ],
+                        "InheritedType": 7
+                      },
+                      {
+                        "nid": -1730646143,
+                        "strtype": "_style/Bg_gradiens_Color",
+                        "intarray": [
+                          0,
+                          255,
+                          0
+                        ],
+                        "InheritedType": 7
+                      },
+                      {
+                        "nid": 1053170112,
+                        "strtype": "_style/Bg_gradient_params",
+                        "intarray": [
+                          80,
+                          255
+                        ],
+                        "InheritedType": 7
+                      },
+                      {
+                        "nid": 1856509719,
+                        "strtype": "_style/Gradient direction",
+                        "strval": "HOR",
+                        "InheritedType": 3
+                      }
+                    ],
+                    "InheritedType": 1
+                  }
+                ],
                 "nid": 458477034,
                 "strtype": "PANEL/Style_scrollbar",
                 "strval": "lv.PART.SCROLLBAR, Rectangle, Pad",
@@ -5480,7 +5442,7 @@
     "theme_color2": 0,
     "exportFolderPath": "C:\\Users\\winbaas\\Documents\\PlatformIO\\Projects\\ZX3D95CE01S-TR-4848\\components\\ui",
     "projectExportFolderPath": "",
-    "backup_cnt": 246,
+    "backup_cnt": 252,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.6",
     "callfuncsexport": "C_FILE",

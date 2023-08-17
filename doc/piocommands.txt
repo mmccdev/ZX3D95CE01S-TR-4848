@@ -1,0 +1,31 @@
+pio run -t menuconfig
+
+C:/Users/winbaas/.espressif/python_env/idf4.3_py3.8_env/Scripts/python.exe C:\Users\winbaas\.platformio\packages\tool-esptoolpy\esptool.py --after hard_reset erase_flash
+
+C:/Users/winbaas/.espressif/python_env/idf4.3_py3.8_env/Scripts/python.exe C:\Users\winbaas\.platformio\packages\tool-esptoolpy\esptool.py --port COM8 write_flash_status --non-volatile 0 
+
+
+mktime(&epever->RealTimeClock)
+
+mktime(*epever->RealTimeClock)
+
+ctime(&epever->RealTimeClock)
+
+
+2.60 * 2.15 = 5.59
+
+ets_loader
+
+esptool.py --port COM7 erase_flash
+
+https://esp32.com/viewtopic.php?t=263#p1131
+1e)
+debug: piodebuggdb (command line)
+info symbol 0x42008BC6 (in piodebuggdb) to lookup linenum 
+list *0x42008BC6 (in piodebuggdb) to list
+
+
+panlee-zw3d95ce01s-ar-4848_full_16MB_v0.7.0-rc5_7c35ef7.bin
+
+lijkt erop dat de cpu waarop lvgl draait crashed. Scherm werkt niet meer wel timeouts van modbus. op beide cores getest
+

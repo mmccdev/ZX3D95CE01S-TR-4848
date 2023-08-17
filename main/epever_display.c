@@ -10,12 +10,99 @@
 #include "freertos/semphr.h"
 #include "esp_system.h"
 #include "esp_log.h"
-
+#include "driver/ledc.h"
 #include "ui.h"
 #include "epever.h"
 #include "board.h"
 
 #define TAG "epever modbus"
+
+//#define LEDC_TIMER              LEDC_TIMER_0
+///#define LEDC_MODE               LEDC_LOW_SPEED_MODE
+//#define LEDC_OUTPUT_IO          (CONFIG_MAIN_LED) // Define the output GPIO
+//#define LEDC_CHANNEL            LEDC_CHANNEL_0
+///#define LEDC_DUTY_RES           LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
+#define LEDC_DUTY_0             (0) // Set duty to 0%. 
+#define LEDC_DUTY_12            (1023) // Set duty to 12%. 
+#define LEDC_DUTY_25            (2047) // Set duty to 25%. 
+#define LEDC_DUTY_50            (4095) // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
+#define LEDC_DUTY_100           (8191) // Set duty to 100%.
+#define LEDC_FREQUENCY          (5000) // Frequency in Hertz. Set frequency at 5 kHz
+
+void display_set_backlight(int percentage) {
+    int duty = (percentage * 0xFF) / 100;
+    if (duty != ledc_get_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1)) {
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, duty);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+    }
+}
+
+static void display_backlight_init() {
+    ledc_timer_config_t ledc_timer = {
+        .duty_resolution = LEDC_TIMER_8_BIT,        // resolution of PWM duty
+        .freq_hz         = 2000,                    // frequency of PWM signal
+        .speed_mode      = LEDC_LOW_SPEED_MODE,     // timer mode
+        .timer_num       = LEDC_TIMER_2,            // timer index
+        .clk_cfg         = LEDC_AUTO_CLK,           // Auto select the source clock
+    };
+    ledc_timer_config(&ledc_timer);
+
+    ledc_channel_config_t ledc_channel = {.channel    = LEDC_CHANNEL_1,
+                                          .duty       = 0xFF,
+                                          .gpio_num   = LCD_PIN_BK_LIGHT,
+                                          .speed_mode = LEDC_LOW_SPEED_MODE,
+                                          .hpoint     = 0,
+                                          .timer_sel  = LEDC_TIMER_2};
+    ledc_channel_config(&ledc_channel);
+    ledc_stop(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, 0);
+    display_set_backlight(40);
+}
+
+
+
+
+/*
+//void setled(int state) 
+void screenbrightness(int percentage) 
+{
+    if (percentage>100 || percentage<0) 
+        return;
+    //(percentage * (LEDC_DUTY_100 - LEDC_DUTY_25) ) / ( LEDC_DUTY_100 * 100)
+    int duty =(int)((((LEDC_DUTY_100 - 1) * percentage) ) / 100) + 1;
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0,duty));
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0));
+    //ESP_ERROR_CHECK(ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0,duty,0x00000));
+}
+
+
+
+
+static void screenbrightness_init(void)
+{
+    // Prepare and then apply the LEDC PWM timer configuration
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode       = LEDC_LOW_SPEED_MODE,
+        .timer_num        = LEDC_TIMER_0,
+        .duty_resolution  = LEDC_TIMER_13_BIT,
+        .freq_hz          = (5000),  // Set output frequency at 5 kHz
+        .clk_cfg          = LEDC_AUTO_CLK
+    };
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+
+    // Prepare and then apply the LEDC PWM channel configuration
+    ledc_channel_config_t ledc_channel = {
+        .speed_mode     = LEDC_LOW_SPEED_MODE,
+        .channel        = LEDC_CHANNEL_0,
+        .timer_sel      = LEDC_TIMER_0,
+        .intr_type      = LEDC_INTR_DISABLE,
+        //.gpio_num       = LEDC_OUTPUT_IO,
+        .gpio_num       = LCD_PIN_BK_LIGHT,
+        .duty           = 100, // Set duty to 100%
+        .hpoint         = 0
+    };
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+}*/
+
 struct measures
 {
     signed long long PInCC;
@@ -30,7 +117,7 @@ volatile epever_statistical_cc_t epever_statistical_2_g;
 volatile epever_rated_cc_t epever_rated_g;
 volatile bool setinverter = true;
 #define measurecount CONFIG_MAIN_AVGBUF
-int swperiod = measurecount * 2;
+volatile int swperiod = measurecount * 2;
 void arminverter()
 {
     setinverter = false;
@@ -49,11 +136,15 @@ void ui_event_Inverterswitch(lv_event_t *e)
             // it looks like esp-modbus is not thread safe so pass a variable
             // master_set_status_inverter(1);
             setinverter = true;
+            display_set_backlight(100);
+            //screenbrightness(100);
         }
         else
         {
             // master_set_status_inverter(0);
             arminverter();
+            display_set_backlight(1);
+            //screenbrightness(0);
             //setinverter = false;
         }
     }
@@ -66,6 +157,8 @@ void ui_event_SliderChargeDischargedraw(lv_event_t *e)
         return;
     lv_obj_set_x(ui_Labelchargedischarge, dsc->draw_area->x1);
 }
+
+
 void ui_event_SliderSunnosun(lv_event_t *e)
 {
     lv_obj_draw_part_dsc_t *dsc = lv_event_get_draw_part_dsc(e);
@@ -100,7 +193,8 @@ void __epever_modbus_task(void *user_data)
     epever_status_inverter_t epever_status_inverter = {};
     epever_discrete_cc_t epever_discrete_cc = {};
     struct timeval elapsedtimeval = {.tv_sec = 0};
-
+    display_backlight_init();
+    display_set_backlight(100);
     master_read_rated_cc(&epever_rated_cc);
     master_read_setting_cc(&epever_setting_cc);
     struct timeval now = {.tv_sec = epever_setting_cc.RealTimeClock};
@@ -114,7 +208,7 @@ void __epever_modbus_task(void *user_data)
             
     while (1)
     {
-        ESP_LOGI("LOOP ", "%d", loop);
+        ESP_LOGV("LOOP ", "%d", loop);
         // master_set_status_inverter(0);
         //  read all significant
         struct tm *tm_info;
@@ -130,11 +224,9 @@ void __epever_modbus_task(void *user_data)
             master_read_status_inverter(&epever_status_inverter);
         }
         if (epever_status_inverter.InverterOnoff == false)
-            //setled(1);
             lv_imgbtn_set_state(ui_Inverterbutton, LV_IMGBTN_STATE_RELEASED); 
         else
             lv_imgbtn_set_state(ui_Inverterbutton, LV_IMGBTN_STATE_CHECKED_PRESSED);
-             //setled(0);
         master_read_statistical_cc1(&epever_statistical_1_g);
         master_read_statistical_cc2(&epever_statistical_2_g);
         gettimeofday(&stop, NULL);
@@ -188,8 +280,6 @@ void __epever_modbus_task(void *user_data)
             }
         }
         // display the stuff
-        //lv_bar_set_mode(ui_Barchargedischarge, LV_BAR_MODE_SYMMETRICAL);
-        //lv_bar_set_value(ui_Barchargedischarge, ((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower + (int64_t)epever_realtime_2_g.ChargingOutputPower) - ((int64_t)epever_load_g.LoadOutputPower + (int64_t)epever_realtime_1_g.DischargingOutputPower + (int64_t)epever_realtime_2_g.DischargingOutputPower))) / 100, LV_ANIM_OFF);
         lv_label_set_text_fmt(ui_LabelSunnosun, "%7.2f",((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100);
         lv_bar_set_value(ui_SliderSunnosun, ((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100, LV_ANIM_OFF);
         
@@ -200,30 +290,19 @@ void __epever_modbus_task(void *user_data)
 
         }
         {
-            //char label[8];
-            //sprintf(&label[0], "Dis%cKWh", (full_cdentijoulein > 0) ? ':' : '.');
-            //ssd1306_display_mytext(&dev_g, 5, "%7.3f", &label[0], (((float)(cdentijoulein - full_cdentijoulein) - (float)(centijouleout - full_centijouleout)) / 360000000));
             float battdischarge = (((float)(cdentijoulein-full_cdentijoulein)-(float)(centijouleout-full_centijouleout))/360000000);
             elapsedtimeval.tv_sec = elapsed_usec / 1000000;
             tm_info = localtime(&elapsedtimeval.tv_sec);
-            // time and date
-            //sizeof(buffer)
             strftime(buffer,sizeof(buffer) , "Dlt %j %H:%M:%S", tm_info);
-            // ssd1306_display_mytext(&dev_g, 0, "", &buffer[0], 0);
-            //lv_label_set_text(ui_BattLabelRctn, &buffer[0]);
-            
             elapsedtimeval.tv_sec = (elapsed_usec - full_elapsed_usec)/1000000;
             tm_info = localtime(&elapsedtimeval.tv_sec);
             strftime(buffer2,sizeof(buffer2) , "D B %j %H:%M:%S", tm_info);
-                // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
+            // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
             // time and date
-            lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f",&buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000);
-
-
+            lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f\nInv.V %7.2f\nCC2.V %7.2f",&buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000,((float)epever_load_g.LoadInputVoltage)/100,((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
             lv_bar_set_value(ui_Batterybar,(int)(battdischarge*1000), LV_ANIM_OFF);
         }
         tm_info = localtime(&start.tv_sec);
-        //sprintf(&label[0],"%02d.%02d  %1d",tm_info->tm_hour,tm_info->tm_min,disppage);
         lv_label_set_text_fmt(ui_Labeltime,"%02d:%02d",tm_info->tm_hour,tm_info->tm_min);
         // ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((fl oat)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
         /*
@@ -235,6 +314,8 @@ void __epever_modbus_task(void *user_data)
                 ssd1306_display_mytext(&dev_g,2,"%7.2f","CC1,2.W",((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100);
                 ssd1306_display_mytext(&dev_g,3,"%7.2f","       ",(-(float)((int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower))/100);
                 //ssd1306_display_mytext(&dev_g,4,"","",0);
+
+                ssd1306_display_mytext(&dev_g,1,"%7.2f","Inv.V",((float)epever_load_g.LoadInputVoltage)/100);
                 ssd1306_display_mytext(&dev_g,4,"%7.2f","CC2.V",((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
                 ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
                 ssd1306_display_mytext(&dev_g,6,"","",0);
@@ -336,5 +417,5 @@ void __epever_modbus_task(void *user_data)
 
 void epever_modbus_start(void)
 {
-    xTaskCreatePinnedToCore(__epever_modbus_task, "epever modbus", 4 * 1024, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore(__epever_modbus_task, "epever modbus", 8 * 1024, NULL, 5, NULL, 0);
 }
