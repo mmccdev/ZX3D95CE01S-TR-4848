@@ -2508,13 +2508,13 @@
                   {
                     "nid": 695157313,
                     "strtype": "LABEL/Long_mode",
-                    "strval": "DOT",
+                    "strval": "CLIP",
                     "InheritedType": 3
                   },
                   {
                     "nid": 659396179,
                     "strtype": "LABEL/Text",
-                    "strval": "00000",
+                    "strval": "000000",
                     "InheritedType": 10
                   },
                   {
@@ -3951,7 +3951,7 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      415,
+                      390,
                       7
                     ],
                     "InheritedType": 7
@@ -4171,13 +4171,13 @@
                   {
                     "nid": -1384686481,
                     "strtype": "LABEL/Long_mode",
-                    "strval": "DOT",
+                    "strval": "CLIP",
                     "InheritedType": 3
                   },
                   {
                     "nid": 864131903,
                     "strtype": "LABEL/Text",
-                    "strval": "00000",
+                    "strval": "000000",
                     "InheritedType": 10
                   },
                   {
@@ -5169,14 +5169,13 @@
               },
               {
                 "nid": 2136812813,
-                "flags": 1048576,
                 "strtype": "LABEL/Label",
                 "InheritedType": 1
               },
               {
                 "nid": 361492772,
                 "strtype": "LABEL/Long_mode",
-                "strval": "DOT",
+                "strval": "CLIP",
                 "InheritedType": 3
               },
               {
@@ -5502,7 +5501,7 @@
     "theme_color2": 0,
     "exportFolderPath": "C:\\Users\\winbaas\\Documents\\PlatformIO\\Projects\\ZX3D95CE01S-TR-4848\\components\\ui",
     "projectExportFolderPath": "",
-    "backup_cnt": 330,
+    "backup_cnt": 358,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.6",
     "callfuncsexport": "C_FILE",

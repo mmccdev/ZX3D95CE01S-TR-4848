@@ -60,6 +60,13 @@ struct measures
     signed long long POutCC;
     signed long long POutInv;
 };
+
+struct watts 
+{
+    unsigned long long elapsed_usec;
+    unsigned long long millijoulein;
+    unsigned long long millijouleout;
+};
 volatile epever_load_inverter_t epever_load_g;
 volatile epever_realtime_cc_t epever_realtime_1_g;
 volatile epever_realtime_cc_t epever_realtime_2_g;
@@ -67,11 +74,11 @@ volatile epever_statistical_cc_t epever_statistical_1_g;
 volatile epever_statistical_cc_t epever_statistical_2_g;
 volatile epever_rated_cc_t epever_rated_g;
 volatile bool setinverter = true;
-volatile int suncycle = 0;
-volatile int batcycle = 0;
+volatile int sundisplaytoggle = 0,battdisplaytoggle = 0;
 #define measurecount CONFIG_MAIN_AVGBUF
 volatile int swperiod = measurecount * 2;
-void arminverter()
+
+void prepareinverteroff()
 {
     setinverter = false;
     swperiod = 1000; // based on a loop time of 0.5 a second 500 seconds
@@ -89,7 +96,7 @@ void ui_event_Inverterswitch(lv_event_t *e)
         }
         else
         {
-            arminverter();
+            prepareinverteroff();
         }
     }
 }
@@ -98,7 +105,7 @@ void ui_event_SliderSunnosundraw(lv_event_t *e)
     lv_obj_draw_part_dsc_t *dsc = lv_event_get_draw_part_dsc(e);
     if (dsc->type != LV_OBJ_DRAW_PART_RECTANGLE)
         return;
-    lv_obj_set_x(ui_LabelSunnosun, dsc->draw_area->x1-10);
+    lv_obj_set_x(ui_LabelSunnosun, dsc->draw_area->x1-8);
 }
 
 void ui_event_SliderChargeDischargedraw(lv_event_t *e)
@@ -106,18 +113,18 @@ void ui_event_SliderChargeDischargedraw(lv_event_t *e)
     lv_obj_draw_part_dsc_t *dsc = lv_event_get_draw_part_dsc(e);
     if (dsc->type != LV_OBJ_DRAW_PART_RECTANGLE)
         return;
-    lv_obj_set_x(ui_LabelChargeDischarge, dsc->draw_area->x1-10);
+    lv_obj_set_x(ui_LabelChargeDischarge, dsc->draw_area->x1-8);
 }
 
 
 void ui_event_LabelSunnosunclicked(lv_event_t *e)
 {
-    suncycle = !suncycle;
+    sundisplaytoggle = !sundisplaytoggle;
 }
 
 void ui_event_LabelChargeDischargeclicked(lv_event_t *e)
 {
-    batcycle = !batcycle;
+    battdisplaytoggle = !battdisplaytoggle;
 }
 
 
@@ -125,22 +132,11 @@ void __epever_modbus_task(void *user_data)
 {
     uint32_t loop = 1;
     int idx = loop;
-    unsigned long long elapsed_usec = 0;
     unsigned long long interval_usec = 0;
-    unsigned long long millijoulein = 0;
-    unsigned long long millijouleout = 0;
-
-    unsigned long long full_elapsed_usec = 0;
-    // unsigned long long interval_usec=0;
-    unsigned long long full_millijoulein = 0;
-    unsigned long long full_millijouleout = 0;
-    // bool inverteron = true;
-    float sunbar;
-    float batbar;
-
-    // int blankcount=0;
-    struct timeval start, stop; //, inverterarm={0};
+    float sunbar,battbar;
+    struct timeval start, stop; 
     struct measures sum = {0};
+    struct watts running = {0}, sincefull ={0} ;
     volatile struct measures avg = {0};
     struct measures measurebuf[measurecount] = {0};
     ESP_ERROR_CHECK(master_init(BOARD_MB_UART_PORT_NUM,BOARD_MB_UART_RXD,BOARD_MB_UART_TXD));
@@ -159,9 +155,10 @@ void __epever_modbus_task(void *user_data)
     gettimeofday(&start, NULL);
 
     lv_obj_add_event_cb(ui_Inverterbutton, ui_event_Inverterswitch, LV_EVENT_ALL, NULL);
+
     lv_obj_add_event_cb(ui_SliderChargeDischarge, ui_event_SliderChargeDischargedraw, LV_EVENT_DRAW_PART_BEGIN , NULL);
     lv_obj_add_event_cb(ui_SliderSunnosun, ui_event_SliderSunnosundraw, LV_EVENT_DRAW_PART_BEGIN , NULL);
-    //LV_EVENT_PRESSED
+
     lv_obj_add_event_cb(ui_LabelChargeDischarge, ui_event_LabelChargeDischargeclicked, LV_EVENT_PRESSED , NULL);
     lv_obj_add_event_cb(ui_LabelSunnosun, ui_event_LabelSunnosunclicked, LV_EVENT_PRESSED , NULL);          
     while (1)
@@ -189,9 +186,9 @@ void __epever_modbus_task(void *user_data)
         master_read_statistical_cc2(&epever_statistical_2_g);
         gettimeofday(&stop, NULL);
         interval_usec = ((stop.tv_sec - start.tv_sec) * 1000000) + (stop.tv_usec - start.tv_usec);
-        elapsed_usec = elapsed_usec + interval_usec;
-        millijoulein += ((epever_realtime_1_g.ChargingOutputPower + epever_realtime_2_g.ChargingOutputPower) * (interval_usec)) / 100000;
-        millijouleout += ((epever_load_g.LoadOutputPower + epever_realtime_1_g.DischargingOutputPower + epever_realtime_2_g.DischargingOutputPower) * (interval_usec)) / 100000;
+        running.elapsed_usec = running.elapsed_usec + interval_usec;
+        running.millijoulein += ((epever_realtime_1_g.ChargingOutputPower + epever_realtime_2_g.ChargingOutputPower) * (interval_usec)) / 100000;
+        running.millijouleout += ((epever_load_g.LoadOutputPower + epever_realtime_1_g.DischargingOutputPower + epever_realtime_2_g.DischargingOutputPower) * (interval_usec)) / 100000;
         idx = loop % measurecount;
         {
             sum.PInCC -= measurebuf[idx].PInCC;
@@ -210,7 +207,7 @@ void __epever_modbus_task(void *user_data)
         }
         start = stop;
         //backlight
-        if (avg.PInCC<100) // 1 amp
+        if (avg.PInCC<50) // .5 amp
         {
             // could be because full battery
             if (epever_load_g.LoadInputVoltage > 1340)
@@ -230,19 +227,14 @@ void __epever_modbus_task(void *user_data)
         {
             display_set_backlight(100);
         }
-        if  ((epever_load_g.LoadInputVoltage < 1340) && (avg.PInCC<10) )
-        {
-            display_set_backlight(1);
-        }
-        
-        if ((((elapsed_usec - full_elapsed_usec) / 1000000) > 3600) && (epever_load_g.LoadInputVoltage > 1400))
+        if ((((running.elapsed_usec - sincefull.elapsed_usec) / 1000000) > 3600) && (epever_load_g.LoadInputVoltage > 1400))
         // min 1 hour after last reset and more than 14 volts on the inverter (battery)
         {
             // propose  epever_load_g.LoadInputVoltage>1430 but need to check for a good idea
             // 1400 spotted in operation
-            full_elapsed_usec = elapsed_usec;
-            full_millijoulein = millijoulein;
-            full_millijouleout = millijouleout;
+            sincefull.elapsed_usec = running.elapsed_usec;
+            sincefull.millijoulein = running.millijoulein;
+            sincefull.millijouleout = running.millijouleout;
         }
         // alternative logic try to keep it simple
         if ((loop % swperiod) == 0) // switch every swperiod loops
@@ -252,10 +244,10 @@ void __epever_modbus_task(void *user_data)
                 setinverter = true;          // set it back to on so the avarage can be measured
                 swperiod = measurecount * 2; // measurecount is the average buffer size. Times 2 because the first measurements might be inacurate
             }
-            else if ((avg.PInCC < 15000) && (avg.POutInv < 2400)) // if less than 150 watt from the panels and below 24 watt demand
-            // else if (avg.POutInv<2400)  // below 24 watt
+            else if ((avg.PInCC < 15000) && (avg.POutInv < 2400) && (epever_load_g.LoadInputVoltage<1400)) // if less than 150 watt from the panels and below 24 watt demand (the consumption of the inverter)
+            // else if (avg.POutInv<2400)  // below 24 watt (the consumption of the inverter itself)
             {
-                arminverter();
+                prepareinverteroff();
             }
             else
             {
@@ -265,35 +257,23 @@ void __epever_modbus_task(void *user_data)
         }
         // display the stuff
         // the panels
-        if (suncycle==0) sunbar = (float)avg.PInCC/100;
+        if (sundisplaytoggle==0) sunbar = (float)avg.PInCC/100;
         else sunbar = (float)measurebuf[idx].PInCC/100;
-        lv_label_set_text_fmt(ui_LabelSunnosun, "%c%7.2f",((suncycle==0 )? 'A': ' '),sunbar);
+        lv_label_set_text_fmt(ui_LabelSunnosun, "%c%7.2f",((sundisplaytoggle==0 )? 'A': ' '),sunbar);
         lv_bar_set_value(ui_SliderSunnosun, sunbar, LV_ANIM_OFF);
-//        lv_label_set_text_fmt(ui_LabelSunnosun, "%7.2f",((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100);
-//        lv_bar_set_value(ui_SliderSunnosun, ((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100, LV_ANIM_OFF);
-
-        // the battery
-        if (batcycle==0) batbar = (float)(avg.PInCC - avg.POutCC - avg.POutInv)/100;
-        else batbar = (float)(measurebuf[idx].PInCC - measurebuf[idx].POutCC - measurebuf[idx].POutInv)/100;
-        lv_label_set_text_fmt(ui_LabelChargeDischarge, "%c%7.2f",((batcycle==0 )? 'A': ' '),batbar);
-        lv_bar_set_value(ui_SliderChargeDischarge, batbar, LV_ANIM_OFF);
-//        lv_label_set_text_fmt(ui_Labelchargedischarge, "%7.2f",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
-//        lv_bar_set_value(ui_SliderChargeDischarge, ((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100, LV_ANIM_OFF);
-
-        // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
+       // the battery
+        if (battdisplaytoggle==0) battbar = (float)(avg.PInCC - avg.POutCC - avg.POutInv)/100;
+        else battbar = (float)(measurebuf[idx].PInCC - measurebuf[idx].POutCC - measurebuf[idx].POutInv)/100;
+        lv_label_set_text_fmt(ui_LabelChargeDischarge, "%c%7.2f",((battdisplaytoggle==0 )? 'A': ' '),battbar);
+        lv_bar_set_value(ui_SliderChargeDischarge, battbar, LV_ANIM_OFF);
         {
-
-        }
-        {
-            float battdischarge = (((float)(millijoulein-full_millijoulein)-(float)(millijouleout-full_millijouleout))/3600000000);
-            elapsedtimeval.tv_sec = elapsed_usec / 1000000;
+            float battdischarge = (((float)(running.millijoulein-sincefull.millijoulein)-(float)(running.millijouleout-sincefull.millijouleout))/3600000000);
+            elapsedtimeval.tv_sec = running.elapsed_usec / 1000000;
             tm_info = localtime(&elapsedtimeval.tv_sec);
             strftime(buffer,sizeof(buffer) , "Dlt %j %H:%M:%S", tm_info);
-            elapsedtimeval.tv_sec = (elapsed_usec - full_elapsed_usec)/1000000;
+            elapsedtimeval.tv_sec = (running.elapsed_usec - sincefull.elapsed_usec)/1000000;
             tm_info = localtime(&elapsedtimeval.tv_sec);
             strftime(buffer2,sizeof(buffer2) , "D B %j %H:%M:%S", tm_info);
-            // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
-            // time and date
             lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f\nInv.V %7.2f\nCC2.V %7.2f",&buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000,((float)epever_load_g.LoadInputVoltage)/100,((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
             lv_bar_set_value(ui_Batterybar,(int)(battdischarge*1000), LV_ANIM_OFF);
         }
@@ -404,7 +384,6 @@ void __epever_modbus_task(void *user_data)
         */
         // loop = (loop+1)%100000000;
         loop = (loop + 1) % 0xFFFFFFF;
-
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
@@ -412,5 +391,5 @@ void __epever_modbus_task(void *user_data)
 
 void epever_modbus_start(void)
 {
-    xTaskCreatePinnedToCore(__epever_modbus_task, "epever modbus", 8 * 1024, NULL, 5, NULL, 0);
+    xTaskCreatePinnedToCore(__epever_modbus_task, TAG, 8 * 1024, NULL, 5, NULL, 0);
 }

@@ -131,8 +131,8 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_height(ui_LabelSunnosun, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_LabelSunnosun, 20);
     lv_obj_set_y(ui_LabelSunnosun, 12);
-    lv_label_set_long_mode(ui_LabelSunnosun, LV_LABEL_LONG_DOT);
-    lv_label_set_text(ui_LabelSunnosun, "00000");
+    lv_label_set_long_mode(ui_LabelSunnosun, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(ui_LabelSunnosun, "000000");
     lv_obj_add_flag(ui_LabelSunnosun, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_clear_flag(ui_LabelSunnosun, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE);      /// Flags
     lv_obj_set_style_text_color(ui_LabelSunnosun, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -213,10 +213,10 @@ void ui_Screen1_screen_init(void)
     ui_LabelChargeDischarge = lv_label_create(ui_PanelChargeDisCharge);
     lv_obj_set_width(ui_LabelChargeDischarge, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelChargeDischarge, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_LabelChargeDischarge, 415);
+    lv_obj_set_x(ui_LabelChargeDischarge, 390);
     lv_obj_set_y(ui_LabelChargeDischarge, 7);
-    lv_label_set_long_mode(ui_LabelChargeDischarge, LV_LABEL_LONG_DOT);
-    lv_label_set_text(ui_LabelChargeDischarge, "00000");
+    lv_label_set_long_mode(ui_LabelChargeDischarge, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(ui_LabelChargeDischarge, "000000");
     lv_obj_add_flag(ui_LabelChargeDischarge, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_clear_flag(ui_LabelChargeDischarge, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE);      /// Flags
     lv_obj_set_style_text_color(ui_LabelChargeDischarge, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -243,7 +243,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_height(ui_Labeltime, LV_SIZE_CONTENT);    /// 10
     lv_obj_set_x(ui_Labeltime, 20);
     lv_obj_set_y(ui_Labeltime, 120);
-    lv_label_set_long_mode(ui_Labeltime, LV_LABEL_LONG_DOT);
+    lv_label_set_long_mode(ui_Labeltime, LV_LABEL_LONG_CLIP);
     lv_label_set_text(ui_Labeltime, "19:00");
     lv_obj_set_style_text_color(ui_Labeltime, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Labeltime, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
