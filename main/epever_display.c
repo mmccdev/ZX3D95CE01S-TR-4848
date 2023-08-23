@@ -338,7 +338,7 @@ void __epever_modbus_task(void *user_data)
             float battdischarge = (((float)(running.millijoulein-sincefull.millijoulein)-(float)(running.millijouleout-sincefull.millijouleout))/3600000000);
             sprintf(buffer + strlen(buffer),"D.T.KWh\t%7.3f\n",battdischarge);
 
-            float battdischarge_sincetodaystart = (((float)(running.millijoulein-todaystart.millijoulein)-(float)(running.millijouleout-todaystart.millijouleout))/3600000000);
+            float battdischarge_sincetodaystart = (((float)(running.millijoulein-todaystart.millijoulein))/3600000000);
             sprintf(buffer + strlen(buffer),"D.D.KWh\t%7.3f\n",battdischarge_sincetodaystart);
 
             sprintf(buffer + strlen(buffer),"Dlt.sec\t%5.6f\n",(float)interval_usec/1000000);
