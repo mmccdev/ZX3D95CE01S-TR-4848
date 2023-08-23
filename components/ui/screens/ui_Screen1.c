@@ -251,6 +251,4 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_line_space(ui_Labeltime, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Labeltime, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_ALL, NULL);
-
 }

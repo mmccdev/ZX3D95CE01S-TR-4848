@@ -139,6 +139,15 @@ void ui_event_ScreenOn(lv_event_t *e)
 {
     displayontoggle = true;
 }
+void ui_event_BatteryImage(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_BattLabelval, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
+    }
+}
+
 
 #define SECS_IN_HOUR (60 * 60)
 #define SECS_IN_DAY (24 * SECS_IN_HOUR)
@@ -187,13 +196,15 @@ void __epever_modbus_task(void *user_data)
 
     lv_obj_add_event_cb(ui_Screen1, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
 
+    lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_ALL, NULL);
+
     while (1)
     {
         ESP_LOGV("LOOP ", "%d", loop);
         // master_set_status_inverter(0);
         //  read all significant
         struct tm *tm_info;
-        char buffer[512];
+        char buffer[1024];
         //char buffer2[18];
         master_read_realtime_cc1(&epever_realtime_1_g);
         master_read_realtime_cc2(&epever_realtime_2_g);
@@ -311,30 +322,30 @@ void __epever_modbus_task(void *user_data)
             
             displaytimeval.tv_sec = running.elapsed_usect / 1000000;
             tm_info = localtime(&displaytimeval.tv_sec);
-            strftime(buffer,sizeof(buffer) , "Dlt %j %H:%M:%S\n", tm_info);
+            strftime(buffer,sizeof(buffer) , "DT\t%j %H:%M:%S\n", tm_info);
 
             displaytimeval.tv_sec = (running.elapsed_usect - sincefull.elapsed_usect)/1000000;
             tm_info = localtime(&displaytimeval.tv_sec);
-            strftime(buffer + strlen(buffer) ,sizeof(buffer) , "D B %j %H:%M:%S\n", tm_info);
+            strftime(buffer + strlen(buffer) ,sizeof(buffer) , "DF\t%j %H:%M:%S\n", tm_info);
 
             displaytimeval.tv_sec = (running.elapsed_usect - todaystart.elapsed_usect)/1000000;
             tm_info = localtime(&displaytimeval.tv_sec);
-            strftime(buffer + strlen(buffer) ,sizeof(buffer) , "D D %j %H:%M:%S\n", tm_info);
+            strftime(buffer + strlen(buffer) ,sizeof(buffer) , "DD\t%j %H:%M:%S\n", tm_info);
 
             //todaystart.elapsed_usect
 
 
             float battdischarge = (((float)(running.millijoulein-sincefull.millijoulein)-(float)(running.millijouleout-sincefull.millijouleout))/3600000000);
-            sprintf(buffer + strlen(buffer),"Dif.T.KWh %7.3f\n",battdischarge);
+            sprintf(buffer + strlen(buffer),"D.T.KWh\t%7.3f\n",battdischarge);
 
             float battdischarge_sincetodaystart = (((float)(running.millijoulein-todaystart.millijoulein)-(float)(running.millijouleout-todaystart.millijouleout))/3600000000);
-            sprintf(buffer + strlen(buffer),"Dif.d.KWh %7.3f\n",battdischarge_sincetodaystart);
+            sprintf(buffer + strlen(buffer),"D.D.KWh\t%7.3f\n",battdischarge_sincetodaystart);
 
-            sprintf(buffer + strlen(buffer),"Dlt.sec %7.6f\n",(float)interval_usec/1000000);
-            sprintf(buffer + strlen(buffer),"Inv.V %7.2f\n",((float)epever_load_g.LoadInputVoltage)/100);
-            sprintf(buffer + strlen(buffer),"CC2.V %7.2f\n",((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
-            sprintf(buffer + strlen(buffer),"In 1 %4d 2 %4d\n",epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
-            lv_label_set_text_fmt(ui_BattLabelval,"%s",&buffer[0]);
+            sprintf(buffer + strlen(buffer),"Dlt.sec\t%5.6f\n",(float)interval_usec/1000000);
+            sprintf(buffer + strlen(buffer),"Inv.V\t%7.2f\n",((float)epever_load_g.LoadInputVoltage)/100);
+            sprintf(buffer + strlen(buffer),"CC2.V\t%7.2f\n",((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
+            sprintf(buffer + strlen(buffer),"In 1\t%4d 2 %4d\n",epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
+            lv_label_set_text_fmt(ui_BattLabelval,"%s",buffer);
             //lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f\nInv.V %7.2f\nCC2.V %7.2f\nIn 1 %4d 2 %4d ",
              //           &buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000,((float)epever_load_g.LoadInputVoltage)/100,((float)epever_realtime_2_g.DischargingOutputVoltage)/100,epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
 //            lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f\nInv.V %7.2f\nCC2.V %7.2f\nIn 1 %4d 2 %4d ",

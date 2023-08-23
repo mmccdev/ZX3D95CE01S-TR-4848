@@ -906,77 +906,6 @@
                     "strtype": "IMAGE/Style_main",
                     "strval": "lv.PART.MAIN, Rectangle, Image",
                     "InheritedType": 11
-                  },
-                  {
-                    "disabled": false,
-                    "nid": -961271702,
-                    "strtype": "_event/EventHandler",
-                    "strval": "CLICKED",
-                    "childs": [
-                      {
-                        "nid": 1416879058,
-                        "strtype": "_custom/name",
-                        "strval": "Battimageclicked",
-                        "InheritedType": 10
-                      },
-                      {
-                        "nid": -176011825,
-                        "strtype": "_custom/condition_C",
-                        "strval": "",
-                        "InheritedType": 10
-                      },
-                      {
-                        "nid": 330347997,
-                        "strtype": "_custom/condition_P",
-                        "strval": "",
-                        "InheritedType": 10
-                      },
-                      {
-                        "nid": -1517025588,
-                        "strtype": "_event/action",
-                        "strval": "MODIFY FLAG",
-                        "childs": [
-                          {
-                            "nid": 977819116,
-                            "strtype": "MODIFY FLAG/Name",
-                            "strval": "MODIFY FLAG",
-                            "InheritedType": 10
-                          },
-                          {
-                            "nid": -203349806,
-                            "strtype": "MODIFY FLAG/Call",
-                            "strval": "ModifyFlag( <{Object}>, lv.obj.FLAG.<{Flag}>, \"<{Action}>\")",
-                            "InheritedType": 10
-                          },
-                          {
-                            "nid": 1826479925,
-                            "strtype": "MODIFY FLAG/CallC",
-                            "strval": "_ui_flag_modify( <{Object}>, LV_OBJ_FLAG_<{Flag}>, _UI_MODIFY_FLAG_<{Action}>);",
-                            "InheritedType": 10
-                          },
-                          {
-                            "nid": 1924560625,
-                            "strtype": "MODIFY FLAG/Object",
-                            "strval": "GUID86518176-703001S1482223",
-                            "InheritedType": 9
-                          },
-                          {
-                            "nid": -1756122687,
-                            "strtype": "MODIFY FLAG/Flag",
-                            "strval": "HIDDEN",
-                            "InheritedType": 3
-                          },
-                          {
-                            "nid": -1008452240,
-                            "strtype": "MODIFY FLAG/Action",
-                            "strval": "TOGGLE",
-                            "InheritedType": 3
-                          }
-                        ],
-                        "InheritedType": 10
-                      }
-                    ],
-                    "InheritedType": 4
                   }
                 ],
                 "saved_objtypeKey": "IMAGE"
@@ -5500,7 +5429,7 @@
     "theme_color2": 0,
     "exportFolderPath": "C:\\Users\\winbaas\\Documents\\PlatformIO\\Projects\\ZX3D95CE01S-TR-4848\\components\\ui",
     "projectExportFolderPath": "",
-    "backup_cnt": 387,
+    "backup_cnt": 507,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.6",
     "callfuncsexport": "C_FILE",

@@ -20,7 +20,6 @@ extern lv_obj_t * ui_Screen1;
 extern lv_obj_t * ui_BattPanel;
 extern lv_obj_t * ui_Batterybar;
 extern lv_obj_t * ui_BattLabelval;
-void ui_event_BatteryImage(lv_event_t * e);
 extern lv_obj_t * ui_BatteryImage;
 extern lv_obj_t * ui_Inverterbutton;
 extern lv_obj_t * ui_EnvironLabelRctn;

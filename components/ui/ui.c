@@ -14,7 +14,6 @@ lv_obj_t * ui_Screen1;
 lv_obj_t * ui_BattPanel;
 lv_obj_t * ui_Batterybar;
 lv_obj_t * ui_BattLabelval;
-void ui_event_BatteryImage(lv_event_t * e);
 lv_obj_t * ui_BatteryImage;
 lv_obj_t * ui_Inverterbutton;
 lv_obj_t * ui_EnvironLabelRctn;
@@ -41,14 +40,6 @@ lv_obj_t * ui____initial_actions0;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event_BatteryImage(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_BattLabelval, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
-    }
-}
 
 ///////////////////// SCREENS ////////////////////
 
