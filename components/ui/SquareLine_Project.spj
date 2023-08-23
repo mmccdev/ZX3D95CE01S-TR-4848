@@ -2652,7 +2652,7 @@
                   {
                     "nid": 1620633121,
                     "strtype": "OBJECT/Clickable",
-                    "strval": "False",
+                    "strval": "True",
                     "InheritedType": 2
                   },
                   {
@@ -2900,7 +2900,7 @@
                   {
                     "nid": -1585969603,
                     "strtype": "OBJECT/Name",
-                    "strval": "ImageDark",
+                    "strval": "ImageNoSun",
                     "InheritedType": 10
                   },
                   {
@@ -2954,7 +2954,6 @@
                   },
                   {
                     "nid": 859208176,
-                    "flags": 1048576,
                     "strtype": "OBJECT/Flags",
                     "InheritedType": 1
                   },
@@ -2967,7 +2966,7 @@
                   {
                     "nid": 1208352408,
                     "strtype": "OBJECT/Clickable",
-                    "strval": "False",
+                    "strval": "True",
                     "InheritedType": 2
                   },
                   {
@@ -3255,7 +3254,7 @@
                 "strtype": "OBJECT/Size",
                 "intarray": [
                   480,
-                  40
+                  39
                 ],
                 "InheritedType": 7
               },
@@ -5501,7 +5500,7 @@
     "theme_color2": 0,
     "exportFolderPath": "C:\\Users\\winbaas\\Documents\\PlatformIO\\Projects\\ZX3D95CE01S-TR-4848\\components\\ui",
     "projectExportFolderPath": "",
-    "backup_cnt": 358,
+    "backup_cnt": 387,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.6",
     "callfuncsexport": "C_FILE",

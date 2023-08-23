@@ -87,7 +87,7 @@ void ui_Screen1_screen_init(void)
 
     ui_SunnosunPanel = lv_obj_create(ui_Screen1);
     lv_obj_set_width(ui_SunnosunPanel, 480);
-    lv_obj_set_height(ui_SunnosunPanel, 40);
+    lv_obj_set_height(ui_SunnosunPanel, 39);
     lv_obj_set_align(ui_SunnosunPanel, LV_ALIGN_TOP_MID);
     lv_obj_clear_flag(ui_SunnosunPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_SunnosunPanel, lv_color_hex(0x000080), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -147,19 +147,19 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_width(ui_ImageSun, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_ImageSun, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_ImageSun, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_add_flag(ui_ImageSun, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_add_flag(ui_ImageSun, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_ImageSun, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_img_recolor(ui_ImageSun, lv_color_hex(0xFFFF00), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_img_recolor_opa(ui_ImageSun, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ImageDark = lv_img_create(ui_SunnosunPanel);
-    lv_img_set_src(ui_ImageDark, &ui_img_dark_png);
-    lv_obj_set_width(ui_ImageDark, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_ImageDark, LV_SIZE_CONTENT);    /// 1
-    lv_obj_add_flag(ui_ImageDark, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_ImageDark, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_img_recolor(ui_ImageDark, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_img_recolor_opa(ui_ImageDark, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_ImageNoSun = lv_img_create(ui_SunnosunPanel);
+    lv_img_set_src(ui_ImageNoSun, &ui_img_dark_png);
+    lv_obj_set_width(ui_ImageNoSun, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ImageNoSun, LV_SIZE_CONTENT);    /// 1
+    lv_obj_add_flag(ui_ImageNoSun, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_ImageNoSun, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_img_recolor(ui_ImageNoSun, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_img_recolor_opa(ui_ImageNoSun, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_PanelChargeDisCharge = lv_obj_create(ui_Screen1);
     lv_obj_set_width(ui_PanelChargeDisCharge, 480);
