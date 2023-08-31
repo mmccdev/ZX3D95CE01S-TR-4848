@@ -296,7 +296,7 @@ void __epever_modbus_task(void *user_data)
             todaystart.millijouleOu = running.millijouleOu;
         }
         
-        if ((running.since70_usect)/loginterval>(save.since70_usect+loginterval)/loginterval)
+        if (((running.since70_usect)/loginterval)>((save.since70_usect)/loginterval))
         {
             if (save.since70_usect>0)
             {
