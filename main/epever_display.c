@@ -33,8 +33,9 @@ struct measures
 struct watts 
 {
     unsigned long long elapsed_usect;
-    unsigned long long millijoulein;
-    unsigned long long millijouleout;
+    unsigned long long since70_usect;
+    unsigned long long millijouleIn;
+    unsigned long long millijouleOu;
 };
 volatile epever_load_inverter_t epever_load_g;
 volatile epever_realtime_cc_t epever_realtime_1_g;
@@ -139,13 +140,14 @@ void ui_event_ScreenOn(lv_event_t *e)
 {
     displayontoggle = true;
 }
+
 void ui_event_BatteryImage(lv_event_t * e)
 {
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
+    // lv_event_code_t event_code = lv_event_get_code(e);
+    // if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_BattLabelval, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
-    }
+        ESP_LOGI(TAG, "Toggle battery");
+    //}
 }
 
 
@@ -159,13 +161,15 @@ int daynum(long long usect, int utc_offset_min)
 
 void __epever_modbus_task(void *user_data)
 {
+    const long loginterval = (1000000 * 60 * 5);
     uint32_t loop = 1;
     int idx = loop;
     unsigned long long interval_usec = 0;
+    //long long since70_usect_ls =0;
     float sunbar,battbar;
     struct timeval start, stop; 
     struct measures sum = {0};
-    struct watts running = {0}, sincefull ={0}, todaystart ={0} ;
+    struct watts running = {0}, sincefull ={0}, todaystart ={0},save = {0};
     volatile struct measures avg = {0};
     struct measures measurebuf[measurecount] = {0};
     ESP_ERROR_CHECK(master_init(BOARD_MB_UART_PORT_NUM,BOARD_MB_UART_RXD,BOARD_MB_UART_TXD));
@@ -196,12 +200,11 @@ void __epever_modbus_task(void *user_data)
 
     lv_obj_add_event_cb(ui_Screen1, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
 
-    lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_CLICKED, NULL);
 
     while (1)
     {
         ESP_LOGV("LOOP ", "%d", loop);
-        // master_set_status_inverter(0);
         //  read all significant
         struct tm *tm_info;
         char buffer[1024];
@@ -223,11 +226,10 @@ void __epever_modbus_task(void *user_data)
         master_read_statistical_cc2(&epever_statistical_2_g);
         gettimeofday(&stop, NULL);
         interval_usec = ((stop.tv_sec - start.tv_sec) * 1000000) + (stop.tv_usec - start.tv_usec);
-
         running.elapsed_usect = running.elapsed_usect + interval_usec;
-
-        running.millijoulein += ((epever_realtime_1_g.ChargingOutputPower + epever_realtime_2_g.ChargingOutputPower) * (interval_usec)) / 100000;
-        running.millijouleout += ((epever_load_g.LoadOutputPower + epever_realtime_1_g.DischargingOutputPower + epever_realtime_2_g.DischargingOutputPower) * (interval_usec)) / 100000;
+        running.since70_usect = (stop.tv_sec* 1000000) + stop.tv_usec;
+        running.millijouleIn += ((epever_realtime_1_g.ChargingOutputPower + epever_realtime_2_g.ChargingOutputPower) * (interval_usec)) / 100000;
+        running.millijouleOu += ((epever_load_g.LoadOutputPower + epever_realtime_1_g.DischargingOutputPower + epever_realtime_2_g.DischargingOutputPower) * (interval_usec)) / 100000;
         idx = loop % measurecount;
         {
             sum.PInCC -= measurebuf[idx].PInCC;
@@ -243,6 +245,10 @@ void __epever_modbus_task(void *user_data)
             avg.PInCC = sum.PInCC / divider;
             avg.POutCC = sum.POutCC / divider;
             avg.POutInv = sum.POutInv / divider;
+
+            //epever_realtime_1_g.ChargingInputVoltage
+            //epever_realtime_2_g.ChargingInputVoltage
+
         }
         start = stop;
         //backlight
@@ -276,18 +282,40 @@ void __epever_modbus_task(void *user_data)
             // propose  epever_load_g.LoadInputVoltage>1430 but need to check for a good idea
             // 1400 spotted in operation
             sincefull.elapsed_usect = running.elapsed_usect;
-            sincefull.millijoulein = running.millijoulein;
-            sincefull.millijouleout = running.millijouleout;
+            sincefull.since70_usect = running.since70_usect;
+            sincefull.millijouleIn = running.millijouleIn;
+            sincefull.millijouleOu = running.millijouleOu;
         }
 
-        if (daynum(running.elapsed_usect,0)>daynum(todaystart.elapsed_usect,0))
+        if (daynum((running.since70_usect * 1000000) ,0)>daynum(todaystart.since70_usect,0))
         {
             // new day reset all running numbers / should be written to non volatile memory
             todaystart.elapsed_usect = running.elapsed_usect;
-            todaystart.millijoulein = running.millijoulein;
-            todaystart.millijouleout = running.millijouleout;
+            todaystart.since70_usect = running.since70_usect;
+            todaystart.millijouleIn = running.millijouleIn;
+            todaystart.millijouleOu = running.millijouleOu;
         }
-
+        
+        if ((running.since70_usect)/loginterval>(save.since70_usect+loginterval)/loginterval)
+        {
+            if (save.since70_usect>0)
+            {
+                sprintf(buffer,"\nsavetime\tusect\tmillijouleIn\tmillijouleOu\n");
+                displaytimeval.tv_sec = running.since70_usect / 1000000;
+                tm_info = localtime(&displaytimeval.tv_sec);
+                strftime(buffer + strlen(buffer),sizeof(buffer) , "%Y-%m-%d %H:%M:%S\t", tm_info);            
+                sprintf(buffer + strlen(buffer),"%12d\t",running.elapsed_usect-save.elapsed_usect);
+                sprintf(buffer + strlen(buffer),"%12d\t",running.millijouleIn-save.millijouleIn);
+                sprintf(buffer + strlen(buffer),"%12d\n",running.millijouleOu-save.millijouleOu);
+                ESP_LOGI("stats","%s", buffer);
+            }
+            save.elapsed_usect = running.elapsed_usect;
+            save.since70_usect = running.since70_usect;
+            save.millijouleIn = running.millijouleIn;
+            save.millijouleOu = running.millijouleOu;
+                        
+        }
+        
         if ((loop % swperiod) == 0) // switch every swperiod loops
         {
             if (epever_status_inverter.InverterOnoff == false)
@@ -318,8 +346,7 @@ void __epever_modbus_task(void *user_data)
         lv_label_set_text_fmt(ui_LabelChargeDischarge, "%c%7.2f",((battdisplaytoggle==0 )? 'A': ' '),battbar);
         lv_bar_set_value(ui_SliderChargeDischarge, battbar, LV_ANIM_OFF);
         {
-
-            
+   
             displaytimeval.tv_sec = running.elapsed_usect / 1000000;
             tm_info = localtime(&displaytimeval.tv_sec);
             strftime(buffer,sizeof(buffer) , "DT\t%j %H:%M:%S\n", tm_info);
@@ -334,17 +361,18 @@ void __epever_modbus_task(void *user_data)
 
             //todaystart.elapsed_usect
 
+            float battdischarge = (((float)(running.millijouleIn-sincefull.millijouleIn)-(float)(running.millijouleOu-sincefull.millijouleOu))/3600000000);
+            sprintf(buffer + strlen(buffer),"Bat.KWh\t%7.3f\n",battdischarge);
 
-            float battdischarge = (((float)(running.millijoulein-sincefull.millijoulein)-(float)(running.millijouleout-sincefull.millijouleout))/3600000000);
-            sprintf(buffer + strlen(buffer),"D.T.KWh\t%7.3f\n",battdischarge);
-
-            float battdischarge_sincetodaystart = (((float)(running.millijoulein-todaystart.millijoulein))/3600000000);
-            sprintf(buffer + strlen(buffer),"D.D.KWh\t%7.3f\n",battdischarge_sincetodaystart);
+            float solar_sincetodaystart = (((float)(running.millijouleIn-todaystart.millijouleIn))/3600000000);
+            sprintf(buffer + strlen(buffer),"Sol.KWh\t%7.3f\n",solar_sincetodaystart);
 
             sprintf(buffer + strlen(buffer),"Dlt.sec\t%5.6f\n",(float)interval_usec/1000000);
             sprintf(buffer + strlen(buffer),"Inv.V\t%7.2f\n",((float)epever_load_g.LoadInputVoltage)/100);
             sprintf(buffer + strlen(buffer),"CC2.V\t%7.2f\n",((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
             sprintf(buffer + strlen(buffer),"In 1\t%4d 2 %4d\n",epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
+            sprintf(buffer + strlen(buffer),"Solar\t%7.2f\n",((float)sunbar*10000));
+            //sunbar)
             lv_label_set_text_fmt(ui_BattLabelval,"%s",buffer);
             //lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f\nInv.V %7.2f\nCC2.V %7.2f\nIn 1 %4d 2 %4d ",
              //           &buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000,((float)epever_load_g.LoadInputVoltage)/100,((float)epever_realtime_2_g.DischargingOutputVoltage)/100,epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
