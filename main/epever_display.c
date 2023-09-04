@@ -14,6 +14,9 @@
 #include "ui.h"
 #include "epever.h"
 #include "board.h"
+#include "esp_log.h"
+#include "esp_debug_helpers.h"
+#include "stats.h"
 
 #define TAG "epever display"
 #define LEDC_DUTY_0             (0) // Set duty to 0%. 
@@ -30,13 +33,7 @@ struct measures
     signed long long POutInv;
 };
 
-struct watts 
-{
-    unsigned long long elapsed_usect;
-    unsigned long long since70_usect;
-    unsigned long long millijouleIn;
-    unsigned long long millijouleOu;
-};
+
 volatile epever_load_inverter_t epever_load_g;
 volatile epever_realtime_cc_t epever_realtime_1_g;
 volatile epever_realtime_cc_t epever_realtime_2_g;
@@ -147,6 +144,7 @@ void ui_event_BatteryImage(lv_event_t * e)
     // if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_BattLabelval, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
         ESP_LOGI(TAG, "Toggle battery");
+        esp_backtrace_print(20); 
     //}
 }
 
@@ -201,7 +199,7 @@ void __epever_modbus_task(void *user_data)
     lv_obj_add_event_cb(ui_Screen1, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
 
     lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_CLICKED, NULL);
-
+    liststats();
     while (1)
     {
         ESP_LOGV("LOOP ", "%d", loop);
@@ -300,6 +298,7 @@ void __epever_modbus_task(void *user_data)
         {
             if (save.since70_usect>0)
             {
+                struct watts Watts;
                 sprintf(buffer,"\nsavetime\tusect\tmillijouleIn\tmillijouleOu\n");
                 displaytimeval.tv_sec = running.since70_usect / 1000000;
                 tm_info = localtime(&displaytimeval.tv_sec);
@@ -308,6 +307,11 @@ void __epever_modbus_task(void *user_data)
                 sprintf(buffer + strlen(buffer),"%12d\t",running.millijouleIn-save.millijouleIn);
                 sprintf(buffer + strlen(buffer),"%12d\n",running.millijouleOu-save.millijouleOu);
                 ESP_LOGI("stats","%s", buffer);
+                Watts.elapsed_usect=running.elapsed_usect-save.elapsed_usect;
+                Watts.since70_usect = running.since70_usect;
+                Watts.millijouleIn = running.millijouleIn-save.millijouleIn;
+                Watts.millijouleOu = running.millijouleOu-save.millijouleOu;
+                savestat(Watts);
             }
             save.elapsed_usect = running.elapsed_usect;
             save.since70_usect = running.since70_usect;
