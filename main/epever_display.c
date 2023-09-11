@@ -159,7 +159,7 @@ int daynum(long long usect, int utc_offset_min)
 
 void __epever_modbus_task(void *user_data)
 {
-    const long loginterval = (1000000 * 60 * 5);
+    const long loginterval_usec = (1000000 * LOG_INTERVAL_SEC);
     uint32_t loop = 1;
     int idx = loop;
     unsigned long long interval_usec = 0;
@@ -176,6 +176,8 @@ void __epever_modbus_task(void *user_data)
     epever_status_inverter_t epever_status_inverter = {};
     epever_discrete_cc_t epever_discrete_cc = {};
     struct timeval displaytimeval = {.tv_sec = 0};
+    struct tm *tm_info;    
+
     display_backlight_init();
     display_set_backlight(100);
     master_read_rated_cc(&epever_rated_cc);
@@ -199,12 +201,25 @@ void __epever_modbus_task(void *user_data)
     lv_obj_add_event_cb(ui_Screen1, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
 
     lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_CLICKED, NULL);
-    liststats();
+
+    lv_chart_set_point_count( ui_SunChart, LOG_COUNT_DAY);
+    initstats();
+    
+    tm_info = localtime(&now.tv_sec);
+
+    short int *pointsa = getstatsa(tm_info->tm_wday);
+
+    //lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, ui_SunChart_series_1_array);
+
+lv_chart_series_t* ui_SunChart_series_1 = lv_chart_add_series(ui_SunChart, lv_color_hex(0x808080), LV_CHART_AXIS_SECONDARY_Y);
+//static lv_coord_t ui_SunChart_series_1_array[] = { 0,10,20,40,80,80,40,20,10,0 };
+lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, pointsa);    
+
+
     while (1)
     {
         ESP_LOGV("LOOP ", "%d", loop);
         //  read all significant
-        struct tm *tm_info;
         char buffer[1024];
         //char buffer2[18];
         master_read_realtime_cc1(&epever_realtime_1_g);
@@ -220,6 +235,7 @@ void __epever_modbus_task(void *user_data)
             lv_imgbtn_set_state(ui_Inverterbutton, LV_IMGBTN_STATE_RELEASED); 
         else
             lv_imgbtn_set_state(ui_Inverterbutton, LV_IMGBTN_STATE_CHECKED_PRESSED);
+
         master_read_statistical_cc1(&epever_statistical_1_g);
         master_read_statistical_cc2(&epever_statistical_2_g);
         gettimeofday(&stop, NULL);
@@ -294,7 +310,7 @@ void __epever_modbus_task(void *user_data)
             todaystart.millijouleOu = running.millijouleOu;
         }
         
-        if (((running.since70_usect)/loginterval)>((save.since70_usect)/loginterval))
+        if (((running.since70_usect)/loginterval_usec)>((save.since70_usect)/loginterval_usec))
         {
             if (save.since70_usect>0)
             {
@@ -311,13 +327,16 @@ void __epever_modbus_task(void *user_data)
                 Watts.since70_usect = running.since70_usect;
                 Watts.millijouleIn = running.millijouleIn-save.millijouleIn;
                 Watts.millijouleOu = running.millijouleOu-save.millijouleOu;
+
+                int measpos=(((tm_info->tm_hour * 60) + tm_info->tm_min) * 60 ) / LOG_INTERVAL_SEC;
+                pointsa[measpos]=(short int)(Watts.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));
+                
                 savestat(Watts);
             }
             save.elapsed_usect = running.elapsed_usect;
             save.since70_usect = running.since70_usect;
             save.millijouleIn = running.millijouleIn;
-            save.millijouleOu = running.millijouleOu;
-                        
+            save.millijouleOu = running.millijouleOu; 
         }
         
         if ((loop % swperiod) == 0) // switch every swperiod loops

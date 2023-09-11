@@ -11,5 +11,5 @@ idf_component_register(
     REQUIRES esp_lcd driver lvgl esp_timer bus touch_panel sht20 
 )
 target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
-
+littlefs_create_partition_image(littlefs ../flash_data FLASH_IN_PROJECT)
 #add_subdirectory(ui)
