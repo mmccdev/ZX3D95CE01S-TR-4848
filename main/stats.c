@@ -30,18 +30,11 @@
 
 static const char *TAG = "demo_esp_littlefs";
 
-FILE *checkfile(int wday)
+FILE *initfile(int wday)
 {
     char fname[128];
     sprintf(fname,"/littlefs/%d.data",wday);    
-    ESP_LOGI(TAG, "Checking file"); 
-    //ESP_LOGI(TAG, "Opening file");
-    FILE *fp = fopen(fname, "r+");
-    if (fp == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to open file for rw");
-        //return;
-    }    
+    //ESP_LOGI(TAG, "Init file"); 
     struct stat st;
     stat(fname, &st);
     if (st.st_size!=(LOG_COUNT_DAY*sizeof(struct watts)))
@@ -60,8 +53,9 @@ FILE *checkfile(int wday)
             fwrite((void *)&Wattsinit, sizeof(struct watts), 1, fp);
         }
         fclose(fp);
+        //fp = fopen(fname, "r+");
     }
-    fp = fopen(fname, "r+");
+    FILE *fp = fopen(fname, "r+");
     if (fp == NULL)
     {
         ESP_LOGE(TAG, "Failed to open file for rw");
@@ -80,8 +74,7 @@ void savestat(struct watts Wattswrite)
     curtimeval.tv_sec = Wattswrite.since70_usect / 1000000;
     tm_info = localtime(&curtimeval.tv_sec);
     ESP_LOGI(TAG, "e: %12lld, s %12lld, I %12lld, O %12lld", Wattswrite.elapsed_usect, Wattswrite.since70_usect, Wattswrite.millijouleIn, Wattswrite.millijouleOu);
-    FILE *fp = checkfile(tm_info->tm_wday);
-
+    FILE *fp = initfile(tm_info->tm_wday);
     int measpos=(((tm_info->tm_hour * 60) + tm_info->tm_min) * 60 ) / LOG_INTERVAL_SEC;
     fseek(fp, (measpos*sizeof(struct watts)), SEEK_SET);
     fwrite((void *)&Wattswrite, sizeof(struct watts), 1, fp);
@@ -95,7 +88,7 @@ short int *getstatsa(int wday)
     struct watts Wattsread;
     int i = 0;
     ESP_LOGI(TAG, "Reading file");
-    FILE *fp = checkfile(wday);
+    FILE *fp = initfile(wday);
     //fp = fopen(fname, "r");
     if (fp == NULL)
     {

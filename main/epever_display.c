@@ -207,15 +207,33 @@ void __epever_modbus_task(void *user_data)
     
     tm_info = localtime(&now.tv_sec);
 
-    short int *pointsa = getstatsa(tm_info->tm_wday);
+    short int *pointsa ;//= getstatsa(tm_info->tm_wday);
+    
+    lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
+#define CANVAS_WIDTH  288
+#define CANVAS_HEIGHT 49
+    static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
+    lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
 
-    //lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, ui_SunChart_series_1_array);
-
-lv_chart_series_t* ui_SunChart_series_1 = lv_chart_add_series(ui_SunChart, lv_color_hex(0x808080), LV_CHART_AXIS_SECONDARY_Y);
-//static lv_coord_t ui_SunChart_series_1_array[] = { 0,10,20,40,80,80,40,20,10,0 };
-lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, pointsa);    
-
-
+    //Create hole on the canvas
+    uint32_t x;
+    uint32_t y;
+    uint32_t p;
+    for (p = 0; p < 7; p++)
+    {
+        pointsa = getstatsa(p);
+        for (x = 0; x < CANVAS_WIDTH; x++)
+        {
+            for (y = 0+(p*7); y < 7+(p*7); y++)
+            {
+                lv_canvas_set_px(canvas, x, y, lv_color_make((uint8_t)(pointsa[x]/2), (uint8_t)(pointsa[x]/2), 0x80-(uint8_t)(pointsa[x]/4)) );
+            }
+        }
+    }
+    pointsa = getstatsa(tm_info->tm_wday);
+    lv_chart_series_t *ui_SunChart_series_1 = lv_chart_add_series(ui_SunChart, lv_color_hex(0x808080), LV_CHART_AXIS_SECONDARY_Y);
+    // static lv_coord_t ui_SunChart_series_1_array[] = { 0,10,20,40,80,80,40,20,10,0 };
+    lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, pointsa);
     while (1)
     {
         ESP_LOGV("LOOP ", "%d", loop);
@@ -315,14 +333,14 @@ lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, pointsa);
             if (save.since70_usect>0)
             {
                 struct watts Watts;
-                sprintf(buffer,"\nsavetime\tusect\tmillijouleIn\tmillijouleOu\n");
+                //sprintf(buffer,"\nsavetime\tusect\tmillijouleIn\tmillijouleOu\n");
                 displaytimeval.tv_sec = running.since70_usect / 1000000;
                 tm_info = localtime(&displaytimeval.tv_sec);
-                strftime(buffer + strlen(buffer),sizeof(buffer) , "%Y-%m-%d %H:%M:%S\t", tm_info);            
-                sprintf(buffer + strlen(buffer),"%12d\t",running.elapsed_usect-save.elapsed_usect);
-                sprintf(buffer + strlen(buffer),"%12d\t",running.millijouleIn-save.millijouleIn);
-                sprintf(buffer + strlen(buffer),"%12d\n",running.millijouleOu-save.millijouleOu);
-                ESP_LOGI("stats","%s", buffer);
+                // strftime(buffer + strlen(buffer),sizeof(buffer) , "%Y-%m-%d %H:%M:%S\t", tm_info);            
+                // sprintf(buffer + strlen(buffer),"%12d\t",running.elapsed_usect-save.elapsed_usect);
+                // sprintf(buffer + strlen(buffer),"%12d\t",running.millijouleIn-save.millijouleIn);
+                // sprintf(buffer + strlen(buffer),"%12d\n",running.millijouleOu-save.millijouleOu);
+                //ESP_LOGI("stats","%s", buffer);
                 Watts.elapsed_usect=running.elapsed_usect-save.elapsed_usect;
                 Watts.since70_usect = running.since70_usect;
                 Watts.millijouleIn = running.millijouleIn-save.millijouleIn;
@@ -332,6 +350,9 @@ lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, pointsa);
                 pointsa[measpos]=(short int)(Watts.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));
                 
                 savestat(Watts);
+                //vTaskDelay(pdMS_TO_TICKS(10));
+
+                //vTaskDelay(1000 / portTICK_PERIOD_MS);
             }
             save.elapsed_usect = running.elapsed_usect;
             save.since70_usect = running.since70_usect;

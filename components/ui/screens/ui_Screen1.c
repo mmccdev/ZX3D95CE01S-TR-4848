@@ -99,7 +99,7 @@ lv_obj_set_style_bg_grad_dir(ui_SunnosunPanel, LV_GRAD_DIR_HOR, LV_PART_SCROLLBA
 
 ui_SliderSunnosun = lv_slider_create(ui_SunnosunPanel);
 lv_slider_set_range(ui_SliderSunnosun, 0,500);
-lv_slider_set_value( ui_SliderSunnosun, 500, LV_ANIM_OFF);
+lv_slider_set_value( ui_SliderSunnosun, 10, LV_ANIM_OFF);
 if (lv_slider_get_mode(ui_SliderSunnosun)==LV_SLIDER_MODE_RANGE ) lv_slider_set_left_value( ui_SliderSunnosun, 0, LV_ANIM_OFF);
 lv_obj_set_width( ui_SliderSunnosun, 360);
 lv_obj_set_height( ui_SliderSunnosun, 40);
@@ -243,9 +243,9 @@ lv_obj_set_style_text_line_space(ui_Labeltime, 0, LV_PART_MAIN| LV_STATE_DEFAULT
 lv_obj_set_style_text_font(ui_Labeltime, &lv_font_montserrat_48, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 ui_SunChart = lv_chart_create(ui_Screen1);
-lv_obj_set_width( ui_SunChart, 272);
+lv_obj_set_width( ui_SunChart, 288);
 lv_obj_set_height( ui_SunChart, 92);
-lv_obj_set_x( ui_SunChart, -73 );
+lv_obj_set_x( ui_SunChart, -66 );
 lv_obj_set_y( ui_SunChart, 16 );
 lv_obj_set_align( ui_SunChart, LV_ALIGN_CENTER );
 lv_chart_set_type( ui_SunChart, LV_CHART_TYPE_LINE);
@@ -261,5 +261,14 @@ lv_obj_set_style_bg_opa(ui_SunChart, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 
 lv_obj_set_style_text_font(ui_SunChart, &lv_font_montserrat_10, LV_PART_TICKS| LV_STATE_DEFAULT);
+
+ui_WeekPanel = lv_obj_create(ui_Screen1);
+lv_obj_set_width( ui_WeekPanel, 288);
+lv_obj_set_height( ui_WeekPanel, 49);
+lv_obj_set_x( ui_WeekPanel, -66 );
+lv_obj_set_y( ui_WeekPanel, 126 );
+lv_obj_set_align( ui_WeekPanel, LV_ALIGN_CENTER );
+lv_obj_clear_flag( ui_WeekPanel, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
+
 
 }
