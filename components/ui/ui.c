@@ -30,6 +30,7 @@ lv_obj_t *ui_ImageCharge;
 lv_obj_t *ui_Labeltime;
 lv_obj_t *ui_SunChart;
 lv_obj_t *ui_WeekPanel;
+lv_obj_t *ui_WeekLabel;
 lv_obj_t *ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////

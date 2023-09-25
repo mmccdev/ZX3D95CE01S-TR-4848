@@ -26,6 +26,9 @@
 #define LEDC_DUTY_100           (8191) // Set duty to 100%.
 #define LEDC_FREQUENCY          (5000) // Frequency in Hertz. Set frequency at 5 kHz
 
+#define CANVAS_WIDTH  288
+#define CANVAS_HEIGHT 112
+
 struct measures
 {
     signed long long PInCC;
@@ -144,7 +147,7 @@ void ui_event_BatteryImage(lv_event_t * e)
     // if(event_code == LV_EVENT_CLICKED) {
         _ui_flag_modify(ui_BattLabelval, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
         ESP_LOGI(TAG, "Toggle battery");
-        esp_backtrace_print(20); 
+        //esp_backtrace_print(20); 
     //}
 }
 
@@ -155,7 +158,28 @@ int daynum(long long usect, int utc_offset_min)
 {
     return ((usect/1000000)+utc_offset_min*60)/SECS_IN_DAY;
 }
-
+void drawmespoint(lv_obj_t * canvas,int weekday,int x,int point)
+{
+    uint32_t y;
+    //if (x > 40)
+    {
+        for (y = 0 + (weekday * 16); y < 16 + (weekday * 16); y++) // one measurement is a line
+        {
+            lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
+        }
+    }
+}
+void setweeklabel(lv_obj_t * canvas,int * totalday )
+{
+    char weeklabelarr[128] = {0};    
+    for (int weekday = 0; weekday < 7; weekday++)
+    {
+        sprintf(weeklabelarr + strlen(weeklabelarr),"%6d\n",(totalday[weekday]/(12)));
+    }
+    ESP_LOGI(TAG, "%s",weeklabelarr);
+    //lv_label_set_text_fmt(ui_WeekLabel, "%s","weeklabelarr");
+    lv_label_set_text(ui_WeekLabel,weeklabelarr);
+}
 
 void __epever_modbus_task(void *user_data)
 {
@@ -210,27 +234,34 @@ void __epever_modbus_task(void *user_data)
     short int *pointsa ;//= getstatsa(tm_info->tm_wday);
     
     lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
-#define CANVAS_WIDTH  288
-#define CANVAS_HEIGHT 49
+//ui_WeekPanel
+//    int CANVAS_Width = lv_obj_get_width(ui_WeekPanel);
+//    int CANVAS_Height = lv_obj_get_height(ui_WeekPanel);
     static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
     lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
-
-    //Create hole on the canvas
+    lv_obj_move_foreground(ui_WeekLabel);
     uint32_t x;
-    uint32_t y;
-    uint32_t p;
-    for (p = 0; p < 7; p++)
+    uint32_t weekday;
+    int totalday[7]={0,0,0,0,0,0,0};
+    for (weekday = 0; weekday < 7; weekday++)
     {
-        pointsa = getstatsa(p);
+        pointsa = getstatsa(weekday);
         for (x = 0; x < CANVAS_WIDTH; x++)
         {
-            for (y = 0+(p*7); y < 7+(p*7); y++)
-            {
-                lv_canvas_set_px(canvas, x, y, lv_color_make((uint8_t)(pointsa[x]/2), (uint8_t)(pointsa[x]/2), 0x80-(uint8_t)(pointsa[x]/4)) );
-            }
+            totalday[weekday]+=pointsa[x];
+            drawmespoint(canvas, weekday, x,pointsa[x]);
         }
+       
     }
+    setweeklabel(ui_WeekLabel,totalday);
+
     pointsa = getstatsa(tm_info->tm_wday);
+    /*
+    for (x=0;x<256;x++)
+    {
+        lv_canvas_set_palette(canvas,x,lv_color_make((uint8_t)(x/2), (uint8_t)(x/2), 0x80-(uint8_t)(x/4)));
+    }
+    */
     lv_chart_series_t *ui_SunChart_series_1 = lv_chart_add_series(ui_SunChart, lv_color_hex(0x808080), LV_CHART_AXIS_SECONDARY_Y);
     // static lv_coord_t ui_SunChart_series_1_array[] = { 0,10,20,40,80,80,40,20,10,0 };
     lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, pointsa);
@@ -288,7 +319,7 @@ void __epever_modbus_task(void *user_data)
         {
             display_set_backlight(0);
         }
-        else if (avg.PInCC < 50) // .5 amp
+        else if (avg.PInCC < 1) // .01 W
         {
             // could be because full battery
             if (epever_load_g.LoadInputVoltage > 1340)
@@ -300,7 +331,7 @@ void __epever_modbus_task(void *user_data)
                 display_set_backlight(1);
             }
         }
-        else if (avg.PInCC < 20000) // 300 amp
+        else if (avg.PInCC < 20000) // 200 W
         {
             display_set_backlight(50);
         }
@@ -345,11 +376,19 @@ void __epever_modbus_task(void *user_data)
                 Watts.since70_usect = running.since70_usect;
                 Watts.millijouleIn = running.millijouleIn-save.millijouleIn;
                 Watts.millijouleOu = running.millijouleOu-save.millijouleOu;
-
-                int measpos=(((tm_info->tm_hour * 60) + tm_info->tm_min) * 60 ) / LOG_INTERVAL_SEC;
-                pointsa[measpos]=(short int)(Watts.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));
                 
+                int measpos=(((tm_info->tm_hour * 60) + tm_info->tm_min) * 60 ) / LOG_INTERVAL_SEC;
+
+                totalday[tm_info->tm_wday] -=pointsa[measpos];
+                pointsa[measpos]=(short int)(Watts.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));
+                totalday[tm_info->tm_wday] -=pointsa[measpos];
+                drawmespoint(canvas, tm_info->tm_wday, measpos,pointsa[measpos]);
+                setweeklabel(ui_WeekLabel,totalday);
+
+
+                vTaskDelay(pdMS_TO_TICKS(10));
                 savestat(Watts);
+                vTaskDelay(pdMS_TO_TICKS(10));
                 //vTaskDelay(pdMS_TO_TICKS(10));
 
                 //vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -531,6 +570,7 @@ void __epever_modbus_task(void *user_data)
         */
         // loop = (loop+1)%100000000;
         loop = (loop + 1) % 0xFFFFFFF;
+        //lv_task_handler();
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
