@@ -5204,7 +5204,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   -66,
-                  16
+                  -24
                 ],
                 "InheritedType": 7
               },
@@ -5214,7 +5214,7 @@
                 "strtype": "OBJECT/Size",
                 "intarray": [
                   288,
-                  92
+                  64
                 ],
                 "InheritedType": 7
               },
@@ -5706,8 +5706,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      -119,
-                      6
+                      -130,
+                      5
                     ],
                     "InheritedType": 7
                   },
@@ -5933,7 +5933,7 @@
                   {
                     "nid": -1447265822,
                     "strtype": "LABEL/Text",
-                    "strval": "Text0\\nText1\\nText2\\nText3\\nText4\\nText5\\nText6",
+                    "strval": "Tex0\\nTex1\\nTex2\\nTex3\\nTex4\\nTex5\\nTex6",
                     "InheritedType": 10
                   },
                   {
@@ -5958,7 +5958,7 @@
                           {
                             "nid": -3885383,
                             "strtype": "_style/Text_Font",
-                            "strval": "montserrat_14",
+                            "strval": "montserrat_10",
                             "InheritedType": 3
                           }
                         ],
@@ -6017,7 +6017,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   -66,
-                  150
+                  80
                 ],
                 "InheritedType": 7
               },
@@ -6027,7 +6027,7 @@
                 "strtype": "OBJECT/Size",
                 "intarray": [
                   288,
-                  112
+                  84
                 ],
                 "InheritedType": 7
               },
@@ -6540,7 +6540,7 @@
     "theme_color2": 0,
     "exportFolderPath": "C:\\Users\\winbaas\\Documents\\PlatformIO\\Projects\\ZX3D95CE01S-TR-4848\\components\\ui",
     "projectExportFolderPath": "",
-    "backup_cnt": 677,
+    "backup_cnt": 689,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.6",
     "callfuncsexport": "C_FILE",

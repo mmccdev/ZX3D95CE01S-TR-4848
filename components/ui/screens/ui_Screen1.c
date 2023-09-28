@@ -244,9 +244,9 @@ lv_obj_set_style_text_font(ui_Labeltime, &lv_font_montserrat_48, LV_PART_MAIN| L
 
 ui_SunChart = lv_chart_create(ui_Screen1);
 lv_obj_set_width( ui_SunChart, 288);
-lv_obj_set_height( ui_SunChart, 92);
+lv_obj_set_height( ui_SunChart, 64);
 lv_obj_set_x( ui_SunChart, -66 );
-lv_obj_set_y( ui_SunChart, 16 );
+lv_obj_set_y( ui_SunChart, -24 );
 lv_obj_set_align( ui_SunChart, LV_ALIGN_CENTER );
 lv_chart_set_type( ui_SunChart, LV_CHART_TYPE_LINE);
 lv_chart_set_point_count( ui_SunChart, 96);
@@ -264,9 +264,9 @@ lv_obj_set_style_text_font(ui_SunChart, &lv_font_montserrat_10, LV_PART_TICKS| L
 
 ui_WeekPanel = lv_obj_create(ui_Screen1);
 lv_obj_set_width( ui_WeekPanel, 288);
-lv_obj_set_height( ui_WeekPanel, 112);
+lv_obj_set_height( ui_WeekPanel, 84);
 lv_obj_set_x( ui_WeekPanel, -66 );
-lv_obj_set_y( ui_WeekPanel, 150 );
+lv_obj_set_y( ui_WeekPanel, 80 );
 lv_obj_set_align( ui_WeekPanel, LV_ALIGN_CENTER );
 lv_obj_clear_flag( ui_WeekPanel, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
 lv_obj_set_style_bg_color(ui_WeekPanel, lv_color_hex(0x000080), LV_PART_MAIN | LV_STATE_DEFAULT );
@@ -275,12 +275,12 @@ lv_obj_set_style_bg_opa(ui_WeekPanel, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 ui_WeekLabel = lv_label_create(ui_WeekPanel);
 lv_obj_set_width( ui_WeekLabel, LV_SIZE_CONTENT);  /// 1
 lv_obj_set_height( ui_WeekLabel, LV_SIZE_CONTENT);   /// 1
-lv_obj_set_x( ui_WeekLabel, -119 );
-lv_obj_set_y( ui_WeekLabel, 7 );
+lv_obj_set_x( ui_WeekLabel, -130 );
+lv_obj_set_y( ui_WeekLabel, 5 );
 lv_obj_set_align( ui_WeekLabel, LV_ALIGN_CENTER );
-lv_label_set_text(ui_WeekLabel,"Text0\nText1\nText2\nText3\nText4\nText5\nText6");
+lv_label_set_text(ui_WeekLabel,"Tex0\nTex1\nTex2\nTex3\nTex4\nTex5\nTex6");
 lv_obj_set_style_text_color(ui_WeekLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_text_opa(ui_WeekLabel, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
-lv_obj_set_style_text_font(ui_WeekLabel, &lv_font_montserrat_14, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_text_font(ui_WeekLabel, &lv_font_montserrat_10, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 }

@@ -28,6 +28,7 @@
 
 #define CANVAS_WIDTH  288
 #define CANVAS_HEIGHT 112
+#define HEAT_LINE_HEIGHT 12
 
 struct measures
 {
@@ -160,10 +161,11 @@ int daynum(long long usect, int utc_offset_min)
 }
 void drawmespoint(lv_obj_t * canvas,int weekday,int x,int point)
 {
-    uint32_t y;
+    
     //if (x > 40)
     {
-        for (y = 0 + (weekday * 16); y < 16 + (weekday * 16); y++) // one measurement is a line
+        uint32_t y;
+        for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
         {
             lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
         }
@@ -339,6 +341,9 @@ void __epever_modbus_task(void *user_data)
         {
             display_set_backlight(100);
         }
+        displaytimeval.tv_sec = running.since70_usect / 1000000;
+        tm_info = localtime(&displaytimeval.tv_sec);
+
         if ((((running.elapsed_usect - sincefull.elapsed_usect) / 1000000) > 3600) && (epever_load_g.LoadInputVoltage > 1400))
         // min 1 hour after last reset and more than 14 volts on the inverter (battery)
         {
@@ -350,13 +355,14 @@ void __epever_modbus_task(void *user_data)
             sincefull.millijouleOu = running.millijouleOu;
         }
 
-        if (daynum((running.since70_usect * 1000000) ,0)>daynum(todaystart.since70_usect,0))
+        if (daynum((running.since70_usect * 1000000) ,0)>daynum(todaystart.since70_usect,0)) 
         {
             // new day reset all running numbers / should be written to non volatile memory
             todaystart.elapsed_usect = running.elapsed_usect;
             todaystart.since70_usect = running.since70_usect;
             todaystart.millijouleIn = running.millijouleIn;
             todaystart.millijouleOu = running.millijouleOu;
+            totalday[tm_info->tm_wday]=0;
         }
         
         if (((running.since70_usect)/loginterval_usec)>((save.since70_usect)/loginterval_usec))
@@ -365,14 +371,14 @@ void __epever_modbus_task(void *user_data)
             {
                 struct watts Watts;
                 //sprintf(buffer,"\nsavetime\tusect\tmillijouleIn\tmillijouleOu\n");
-                displaytimeval.tv_sec = running.since70_usect / 1000000;
-                tm_info = localtime(&displaytimeval.tv_sec);
+                //displaytimeval.tv_sec = running.since70_usect / 1000000;
+                //tm_info = localtime(&displaytimeval.tv_sec);
                 // strftime(buffer + strlen(buffer),sizeof(buffer) , "%Y-%m-%d %H:%M:%S\t", tm_info);            
                 // sprintf(buffer + strlen(buffer),"%12d\t",running.elapsed_usect-save.elapsed_usect);
                 // sprintf(buffer + strlen(buffer),"%12d\t",running.millijouleIn-save.millijouleIn);
                 // sprintf(buffer + strlen(buffer),"%12d\n",running.millijouleOu-save.millijouleOu);
                 //ESP_LOGI("stats","%s", buffer);
-                Watts.elapsed_usect=running.elapsed_usect-save.elapsed_usect;
+                Watts.elapsed_usect= running.elapsed_usect-save.elapsed_usect;
                 Watts.since70_usect = running.since70_usect;
                 Watts.millijouleIn = running.millijouleIn-save.millijouleIn;
                 Watts.millijouleOu = running.millijouleOu-save.millijouleOu;
@@ -381,10 +387,9 @@ void __epever_modbus_task(void *user_data)
 
                 totalday[tm_info->tm_wday] -=pointsa[measpos];
                 pointsa[measpos]=(short int)(Watts.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));
-                totalday[tm_info->tm_wday] -=pointsa[measpos];
+                totalday[tm_info->tm_wday] +=pointsa[measpos];
                 drawmespoint(canvas, tm_info->tm_wday, measpos,pointsa[measpos]);
                 setweeklabel(ui_WeekLabel,totalday);
-
 
                 vTaskDelay(pdMS_TO_TICKS(10));
                 savestat(Watts);
