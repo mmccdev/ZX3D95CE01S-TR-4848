@@ -183,6 +183,37 @@ void setweeklabel(lv_obj_t * canvas,int * totalday )
     lv_label_set_text(ui_WeekLabel,weeklabelarr);
 }
 
+void initlvgl()
+{
+    lv_obj_add_event_cb(ui_Inverterbutton, ui_event_Inverterswitch, LV_EVENT_ALL, NULL);
+
+    lv_obj_add_event_cb(ui_SliderChargeDischarge, ui_event_SliderChargeDischargedraw, LV_EVENT_DRAW_PART_BEGIN , NULL);
+    lv_obj_add_event_cb(ui_SliderSunnosun, ui_event_SliderSunnosundraw, LV_EVENT_DRAW_PART_BEGIN , NULL);
+
+    lv_obj_add_event_cb(ui_LabelChargeDischarge, ui_event_LabelChargeDischargeclicked, LV_EVENT_CLICKED , NULL);
+    lv_obj_add_event_cb(ui_LabelSunnosun, ui_event_LabelSunnosunclicked, LV_EVENT_CLICKED , NULL);
+
+    lv_obj_add_event_cb(ui_ImageNoSun, ui_event_ImageNoSunclicked, LV_EVENT_CLICKED , NULL);
+    lv_obj_add_event_cb(ui_ImageSun, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
+
+    lv_obj_add_event_cb(ui_Screen1, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
+
+    lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_CLICKED, NULL);
+
+    lv_chart_set_point_count( ui_SunChart, LOG_COUNT_DAY);
+
+    lv_obj_move_foreground(ui_WeekLabel);
+}
+
+void copywatts(struct watts *to,struct watts *from)
+{
+    //to->elapsed_usect
+    to->elapsed_usect = from->elapsed_usect;
+    to->since70_usect = from->since70_usect;
+    to->millijouleIn = from->millijouleIn;
+    to->millijouleOu = from->millijouleOu;
+}
+
 void __epever_modbus_task(void *user_data)
 {
     const long loginterval_usec = (1000000 * LOG_INTERVAL_SEC);
@@ -206,42 +237,30 @@ void __epever_modbus_task(void *user_data)
 
     display_backlight_init();
     display_set_backlight(100);
+
     master_read_rated_cc(&epever_rated_cc);
     master_read_setting_cc(&epever_setting_cc);
     struct timeval now = {.tv_sec = epever_setting_cc.RealTimeClock};
     settimeofday(&now, NULL);
     master_read_discrete_cc(&epever_discrete_cc);
     gettimeofday(&start, NULL);
+    
+    lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
+    static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
+    lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);    
 
-    lv_obj_add_event_cb(ui_Inverterbutton, ui_event_Inverterswitch, LV_EVENT_ALL, NULL);
-
-    lv_obj_add_event_cb(ui_SliderChargeDischarge, ui_event_SliderChargeDischargedraw, LV_EVENT_DRAW_PART_BEGIN , NULL);
-    lv_obj_add_event_cb(ui_SliderSunnosun, ui_event_SliderSunnosundraw, LV_EVENT_DRAW_PART_BEGIN , NULL);
-
-    lv_obj_add_event_cb(ui_LabelChargeDischarge, ui_event_LabelChargeDischargeclicked, LV_EVENT_CLICKED , NULL);
-    lv_obj_add_event_cb(ui_LabelSunnosun, ui_event_LabelSunnosunclicked, LV_EVENT_CLICKED , NULL);
-
-    lv_obj_add_event_cb(ui_ImageNoSun, ui_event_ImageNoSunclicked, LV_EVENT_CLICKED , NULL);
-    lv_obj_add_event_cb(ui_ImageSun, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
-
-    lv_obj_add_event_cb(ui_Screen1, ui_event_ScreenOn, LV_EVENT_CLICKED , NULL);
-
-    lv_obj_add_event_cb(ui_BatteryImage, ui_event_BatteryImage, LV_EVENT_CLICKED, NULL);
-
-    lv_chart_set_point_count( ui_SunChart, LOG_COUNT_DAY);
+    initlvgl();
     initstats();
     
     tm_info = localtime(&now.tv_sec);
 
     short int *pointsa ;//= getstatsa(tm_info->tm_wday);
     
-    lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
+
 //ui_WeekPanel
 //    int CANVAS_Width = lv_obj_get_width(ui_WeekPanel);
 //    int CANVAS_Height = lv_obj_get_height(ui_WeekPanel);
-    static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
-    lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
-    lv_obj_move_foreground(ui_WeekLabel);
+    //lv_obj_move_foreground(ui_WeekLabel);
     uint32_t x;
     uint32_t weekday;
     int totalday[7]={0,0,0,0,0,0,0};
@@ -349,19 +368,21 @@ void __epever_modbus_task(void *user_data)
         {
             // propose  epever_load_g.LoadInputVoltage>1430 but need to check for a good idea
             // 1400 spotted in operation
-            sincefull.elapsed_usect = running.elapsed_usect;
-            sincefull.since70_usect = running.since70_usect;
-            sincefull.millijouleIn = running.millijouleIn;
-            sincefull.millijouleOu = running.millijouleOu;
+            copywatts(&sincefull,&running);
+            // sincefull.elapsed_usect = running.elapsed_usect;
+            // sincefull.since70_usect = running.since70_usect;
+            // sincefull.millijouleIn = running.millijouleIn;
+            // sincefull.millijouleOu = running.millijouleOu;
         }
 
         if (daynum((running.since70_usect * 1000000) ,0)>daynum(todaystart.since70_usect,0)) 
         {
             // new day reset all running numbers / should be written to non volatile memory
-            todaystart.elapsed_usect = running.elapsed_usect;
-            todaystart.since70_usect = running.since70_usect;
-            todaystart.millijouleIn = running.millijouleIn;
-            todaystart.millijouleOu = running.millijouleOu;
+            copywatts(&todaystart,&running);
+            // todaystart.elapsed_usect = running.elapsed_usect;
+            // todaystart.since70_usect = running.since70_usect;
+            // todaystart.millijouleIn = running.millijouleIn;
+            // todaystart.millijouleOu = running.millijouleOu;
             totalday[tm_info->tm_wday]=0;
         }
         
@@ -378,6 +399,7 @@ void __epever_modbus_task(void *user_data)
                 // sprintf(buffer + strlen(buffer),"%12d\t",running.millijouleIn-save.millijouleIn);
                 // sprintf(buffer + strlen(buffer),"%12d\n",running.millijouleOu-save.millijouleOu);
                 //ESP_LOGI("stats","%s", buffer);
+                //copywatts(&todaystart,&running);
                 Watts.elapsed_usect= running.elapsed_usect-save.elapsed_usect;
                 Watts.since70_usect = running.since70_usect;
                 Watts.millijouleIn = running.millijouleIn-save.millijouleIn;
@@ -398,10 +420,11 @@ void __epever_modbus_task(void *user_data)
 
                 //vTaskDelay(1000 / portTICK_PERIOD_MS);
             }
-            save.elapsed_usect = running.elapsed_usect;
-            save.since70_usect = running.since70_usect;
-            save.millijouleIn = running.millijouleIn;
-            save.millijouleOu = running.millijouleOu; 
+            copywatts(&save,&running);
+            // save.elapsed_usect = running.elapsed_usect;
+            // save.since70_usect = running.since70_usect;
+            // save.millijouleIn = running.millijouleIn;
+            // save.millijouleOu = running.millijouleOu; 
         }
         
         if ((loop % swperiod) == 0) // switch every swperiod loops
@@ -470,110 +493,6 @@ void __epever_modbus_task(void *user_data)
         }
         tm_info = localtime(&start.tv_sec);
         lv_label_set_text_fmt(ui_Labeltime,"%02d:%02d",tm_info->tm_hour,tm_info->tm_min);
-        // ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((fl oat)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
-        /*
-        switch (disppage)
-        {
-            case 0:
-                ssd1306_display_mytext(&dev_g,0,"%7.2f","Inv.W",(-(float)epever_load_g.LoadOutputPower)/100);
-                ssd1306_display_mytext(&dev_g,1,"%7.2f","Inv.V",((float)epever_load_g.LoadInputVoltage)/100);
-                ssd1306_display_mytext(&dev_g,2,"%7.2f","CC1,2.W",((float)(int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)/100);
-                ssd1306_display_mytext(&dev_g,3,"%7.2f","       ",(-(float)((int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower))/100);
-                //ssd1306_display_mytext(&dev_g,4,"","",0);
-
-                ssd1306_display_mytext(&dev_g,1,"%7.2f","Inv.V",((float)epever_load_g.LoadInputVoltage)/100);
-                ssd1306_display_mytext(&dev_g,4,"%7.2f","CC2.V",((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
-                ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((float)(((int64_t)epever_realtime_1_g.ChargingOutputPower+(int64_t)epever_realtime_2_g.ChargingOutputPower)-((int64_t)epever_load_g.LoadOutputPower+(int64_t)epever_realtime_1_g.DischargingOutputPower+(int64_t)epever_realtime_2_g.DischargingOutputPower)))/100);
-                ssd1306_display_mytext(&dev_g,6,"","",0);
-                break;
-            case 1:
-                ssd1306_display_mytext(&dev_g,0,"%7.2f","Inv.W",(-(float)avg.POutInv)/100);
-                ssd1306_display_mytext(&dev_g,1,"%7.2f","Inv.V",((float)epever_load_g.LoadInputVoltage)/100);
-                ssd1306_display_mytext(&dev_g,2,"%7.2f","CC1,2.W",((float)(int64_t)avg.PInCC)/100);
-                ssd1306_display_mytext(&dev_g,3,"%7.2f","       ",(-(float)(int64_t)avg.POutCC)/100);
-                ssd1306_display_mytext(&dev_g,4,"","",0);
-                ssd1306_display_mytext(&dev_g,5,"%7.2f","TOT.W",((float)(((int64_t)avg.PInCC)-((int64_t)avg.POutInv+(int64_t)avg.POutCC)))/100);
-                ssd1306_display_mytext(&dev_g,6,"","",0);
-                break;
-            case 2:
-                {
-                    tm_info = localtime(&start.tv_sec);
-                    // time and date
-                    strftime(buffer, 17, "%d%b%y %H:%M:%S", tm_info);
-                    ssd1306_display_mytext(&dev_g,0,"",&buffer[0],0);
-                }
-                //interval_usec
-                ssd1306_display_mytext(&dev_g,1,"%7.6f","Dlt.sec",(float)interval_usec/1000000);
-
-                if ((loop%2)==0)
-                {
-                    ssd1306_display_mytext(&dev_g,2,"%7.0f","CC1.D.W",((float)(int64_t)epever_statistical_1_g.TodayGeneratedEnergy)*10);
-                    ssd1306_display_mytext(&dev_g,5,"%7.2f","Bat1.T",((float)(int64_t)epever_realtime_1_g.BatteryTemperature)/100);
-                    ssd1306_display_mytext(&dev_g,6,"%7.2f","CC1.T",((float)(int64_t)epever_realtime_1_g.ChargerCaseTemperature)/100);
-                }
-                else
-                {
-                    ssd1306_display_mytext(&dev_g,2,"%7.0f","CC2.D.W",((float)(int64_t)epever_statistical_2_g.TodayGeneratedEnergy)*10);
-                    ssd1306_display_mytext(&dev_g,5,"%7.2f","Bat2.T",((float)(int64_t)epever_realtime_2_g.BatteryTemperature)/100);
-                    ssd1306_display_mytext(&dev_g,6,"%7.2f","CC2.T",((float)(int64_t)epever_realtime_2_g.ChargerCaseTemperature)/100);
-                }
-                ssd1306_display_mytext(&dev_g,3,"","",0);
-                ssd1306_display_mytext(&dev_g,4,"","",0);
-                break;
-            case 3:
-                elapsedtimeval.tv_sec = elapsed_usec/1000000;
-                // need to reset tm_info after this useless to use a seperate struct because it will be overwritten
-                {
-                    tm_info = localtime(&elapsedtimeval.tv_sec);
-                    // time and date
-                    strftime(buffer, 17, "Dlt %j %H:%M:%S", tm_info);
-                    ssd1306_display_mytext(&dev_g,0,"",&buffer[0],0);
-                }
-
-                // usec is 1000000
-                // 1h = 3600 sec
-                // all powers in W but centiwatts so also centijoules
-                ssd1306_display_mytext(&dev_g,2,"%7.3f","In .KWh",((float)cdentijoulein/360000000));
-                ssd1306_display_mytext(&dev_g,3,"%7.3f","Out.KWh",((float)centijouleout/360000000));
-                ssd1306_display_mytext(&dev_g,4,"%7.3f","Dif.KWh",(((float)cdentijoulein-(float)centijouleout)/360000000));
-                {
-                    char label[8];
-                    sprintf(&label[0],"Dis%cKWh",(full_cdentijoulein>0) ? ':':'.');
-                    ssd1306_display_mytext(&dev_g,5,"%7.3f",&label[0],(((float)(cdentijoulein-full_cdentijoulein)-(float)(centijouleout-full_centijouleout))/360000000));
-                }
-
-            // full_elapsed_usec=elapsed_usec;
-            // full_cdentijoulein=cdentijoulein;
-            // full_centijouleout=centijouleout;
-
-                //ssd1306_display_mytext(&dev_g,5,"%7.2f","In .W",(((float)cdentijoulein*10000)/(float)elapsed_usec));
-
-                //ssd1306_display_mytext(&dev_g,6,"%7.2f","Out.KJ",((float)centijouleout/100000));
-
-                //ssd1306_display_mytext(&dev_g,6,"%7.2f","Out.W",(((float)centijouleout*10000)/(float)elapsed_usec));
-
-                ssd1306_display_mytext(&dev_g,1,"","",0);
-
-                //ssd1306_display_mytext(&dev_g,5,"","",0);
-                ssd1306_display_mytext(&dev_g,6,"","",0);
-                //ssd1306_display_mytext(&dev_g,1,"","",0);
-                //ssd1306_display_mytext(&dev_g,4,"","",0);
-                break;
-
-            default:
-                break;
-        }
-        // always displayed
-        {
-            char label[18];
-            // somehow tm_info
-            tm_info = localtime(&start.tv_sec);
-            sprintf(&label[0],"%02d.%02d  %1d",tm_info->tm_hour,tm_info->tm_min,disppage);
-            sprintf(&label[0],"%1d %07X  %02d%c%02d",disppage,loop,tm_info->tm_hour,(setinverter==false) ? '.':':',tm_info->tm_min);
-            ssd1306_display_mytext(&dev_g,7,"",&label[0],0);
-        }
-        */
-        // loop = (loop+1)%100000000;
         loop = (loop + 1) % 0xFFFFFFF;
         //lv_task_handler();
         vTaskDelay(100 / portTICK_PERIOD_MS);
