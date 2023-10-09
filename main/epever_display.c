@@ -378,12 +378,13 @@ void __epever_modbus_task(void *user_data)
         if (daynum((running.since70_usect * 1000000) ,0)>daynum(todaystart.since70_usect,0)) 
         {
             // new day reset all running numbers / should be written to non volatile memory
+            pointsa = getstatsa(tm_info->tm_wday);    
             copywatts(&todaystart,&running);
             // todaystart.elapsed_usect = running.elapsed_usect;
             // todaystart.since70_usect = running.since70_usect;
             // todaystart.millijouleIn = running.millijouleIn;
             // todaystart.millijouleOu = running.millijouleOu;
-            totalday[tm_info->tm_wday]=0;
+            //totalday[tm_info->tm_wday]=0;
         }
         
         if (((running.since70_usect)/loginterval_usec)>((save.since70_usect)/loginterval_usec))
@@ -434,8 +435,8 @@ void __epever_modbus_task(void *user_data)
                 setinverter = true;          // set it back to on so the avarage can be measured
                 swperiod = measurecount * 2; // measurecount is the average buffer size. Times 2 because the first measurements might be inacurate
             }
-            else if ((avg.PInCC < 15000) && (avg.POutInv < 2400) && (epever_load_g.LoadInputVoltage<1400)) // if less than 150 watt from the panels and below 24 watt demand (the consumption of the inverter)
-            // else if (avg.POutInv<2400)  // below 24 watt (the consumption of the inverter itself)
+            else if ((avg.PInCC < 20000) && (avg.POutInv < 2600) && (epever_load_g.LoadInputVoltage<1400)) // if less than 150 watt from the panels and below 24 watt demand (the consumption of the inverter)
+            // else if (avg.POutInv<2400)  // below 26 watt (the consumption of the inverter itself)
             {
                 prepareinverteroff();
             }

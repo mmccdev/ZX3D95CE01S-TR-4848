@@ -103,7 +103,7 @@ short int *getstatsa(int wday)
         else 
         {
             //ESP_LOGI(TAG, "e: %12lld, s %12lld, I %12lld, O %12lld", Wattsread.elapsed_usect,Wattsread.since70_usect,Wattsread.millijouleIn, Wattsread.millijouleOu);
-            ret[i]=(short int)(Wattsread.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC)); 
+            ret[i]=(short int)(Wattsread.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));  
             //3600/LOG_INTERVAL_SEC
             //solar_sincetodaystart = (int)(Wattsread.millijouleIn/3600000);
             //LOG_INTERVAL_SEC
