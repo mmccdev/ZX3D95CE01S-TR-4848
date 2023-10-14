@@ -228,7 +228,7 @@ static void *master_get_param_data(const mb_parameter_descriptor_t *param_descri
 }
 
 // Modbus master initialization
-esp_err_t master_init(int MB_UART_PORT_NUM,int MB_UART_RXD,int MB_UART_TXD)
+esp_err_t master_init(int MB_UART_PORT_NUM,int MB_UART_RXD,int MB_UART_TXD,int MB_UART_RTS)
 {
     // Initialize and start Modbus controller
     mb_communication_info_t comm = {
@@ -251,7 +251,7 @@ esp_err_t master_init(int MB_UART_PORT_NUM,int MB_UART_RXD,int MB_UART_TXD)
 
     // Set UART pin numbers
     err = uart_set_pin(MB_UART_PORT_NUM, MB_UART_TXD, MB_UART_RXD,
-                       -1, UART_PIN_NO_CHANGE);
+                       MB_UART_RTS, UART_PIN_NO_CHANGE);
 
     err = mbc_master_start();
     MASTER_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,

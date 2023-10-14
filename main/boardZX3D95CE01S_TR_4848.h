@@ -40,6 +40,7 @@
 //#define BOARD_MB_UART_BAUD_RATE 115200
 #define BOARD_MB_UART_RXD 1
 #define BOARD_MB_UART_TXD 2
-//#define BOARD_MB_UART_RTS -1
+//#define BOARD_MB_UART_RTS 38
+#define BOARD_MB_UART_RTS -1
 
 

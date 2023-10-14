@@ -1,3 +1,5 @@
+#include <stdio.h>
+#if defined(CONFIG_ZX3D95CE01S_TR_4848)
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,3 +35,4 @@ void sht20_test_start(void)
 {
     xTaskCreatePinnedToCore(__sht20_test_task, "sht20", 4 * 1024, NULL, 4, NULL, 0);
 }
+#endif

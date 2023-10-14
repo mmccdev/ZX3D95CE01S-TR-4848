@@ -227,7 +227,7 @@ void __epever_modbus_task(void *user_data)
     struct watts running = {0}, sincefull ={0}, todaystart ={0},save = {0};
     volatile struct measures avg = {0};
     struct measures measurebuf[measurecount] = {0};
-    ESP_ERROR_CHECK(master_init(BOARD_MB_UART_PORT_NUM,BOARD_MB_UART_RXD,BOARD_MB_UART_TXD));
+    ESP_ERROR_CHECK(master_init(BOARD_MB_UART_PORT_NUM,BOARD_MB_UART_RXD,BOARD_MB_UART_TXD,BOARD_MB_UART_RTS));
     epever_rated_cc_t epever_rated_cc = {};
     epever_setting_cc_t epever_setting_cc = {};
     epever_status_inverter_t epever_status_inverter = {};
@@ -378,7 +378,7 @@ void __epever_modbus_task(void *user_data)
         if (daynum((running.since70_usect * 1000000) ,0)>daynum(todaystart.since70_usect,0)) 
         {
             // new day reset all running numbers / should be written to non volatile memory
-            pointsa = getstatsa(tm_info->tm_wday);    
+            //pointsa = getstatsa(tm_info->tm_wday);    
             copywatts(&todaystart,&running);
             // todaystart.elapsed_usect = running.elapsed_usect;
             // todaystart.since70_usect = running.since70_usect;

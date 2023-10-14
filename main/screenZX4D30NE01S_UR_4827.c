@@ -108,9 +108,9 @@ void screen_init(void) {
             .flags.pclk_active_neg = 1,
         },
         .flags.fb_in_psram = 1,
-        .flags.double_fb = 0,
+        .flags.double_fb = 1,
         .flags.refresh_on_demand = 0,   // Mannually control refresh operation
-        .bounce_buffer_size_px = 0,
+        .bounce_buffer_size_px =  0,
         .clk_src = LCD_CLK_SRC_PLL160M,
     };
 

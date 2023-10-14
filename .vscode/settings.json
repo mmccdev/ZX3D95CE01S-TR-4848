@@ -7,6 +7,8 @@
         "boardzx3d95ce01s_tr_4848.h": "c",
         "esp_flash.h": "c",
         "esp_littlefs.h": "c",
-        "string": "c"
+        "string": "c",
+        "stdbool.h": "c",
+        "stdlib.h": "c"
     }
 }

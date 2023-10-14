@@ -33,9 +33,9 @@ extern lv_obj_t *ui_SliderChargeDischarge;
 extern lv_obj_t *ui_LabelChargeDischarge;
 extern lv_obj_t *ui_ImageCharge;
 extern lv_obj_t *ui_Labeltime;
-extern lv_obj_t *ui_SunChart;
 extern lv_obj_t *ui_WeekPanel;
 extern lv_obj_t *ui_WeekLabel;
+extern lv_obj_t *ui_SunChart;
 extern lv_obj_t *ui____initial_actions0;
 
 LV_IMG_DECLARE( ui_img_battery_png);   // assets\battery.png
