@@ -246,6 +246,12 @@ void __epever_modbus_task(void *user_data)
     gettimeofday(&start, NULL);
     
     lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
+
+#if defined(CONFIG_ZX3D95CE01S_TR_4848) || defined(CONFIG_ZX3D95CE01S_AR_4848)
+    lv_obj_set_y( ui_WeekPanel, 255 );
+#endif
+
+
     static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
     lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);    
 
@@ -254,9 +260,8 @@ void __epever_modbus_task(void *user_data)
     
     tm_info = localtime(&now.tv_sec);
 
-    short int *pointsa ;//= getstatsa(tm_info->tm_wday);
+    short int *pointsa ;
     
-
 //ui_WeekPanel
 //    int CANVAS_Width = lv_obj_get_width(ui_WeekPanel);
 //    int CANVAS_Height = lv_obj_get_height(ui_WeekPanel);
@@ -277,21 +282,15 @@ void __epever_modbus_task(void *user_data)
     setweeklabel(ui_WeekLabel,totalday);
 
     pointsa = getstatsa(tm_info->tm_wday);
-    /*
-    for (x=0;x<256;x++)
-    {
-        lv_canvas_set_palette(canvas,x,lv_color_make((uint8_t)(x/2), (uint8_t)(x/2), 0x80-(uint8_t)(x/4)));
-    }
-    */
+
     lv_chart_series_t *ui_SunChart_series_1 = lv_chart_add_series(ui_SunChart, lv_color_hex(0x808080), LV_CHART_AXIS_SECONDARY_Y);
-    // static lv_coord_t ui_SunChart_series_1_array[] = { 0,10,20,40,80,80,40,20,10,0 };
+
     lv_chart_set_ext_y_array(ui_SunChart, ui_SunChart_series_1, pointsa);
     while (1)
     {
         ESP_LOGV("LOOP ", "%d", loop);
         //  read all significant
         char buffer[1024];
-        //char buffer2[18];
         master_read_realtime_cc1(&epever_realtime_1_g);
         master_read_realtime_cc2(&epever_realtime_2_g);
         master_read_load_inverter(&epever_load_g);
@@ -330,9 +329,6 @@ void __epever_modbus_task(void *user_data)
             avg.POutCC = sum.POutCC / divider;
             avg.POutInv = sum.POutInv / divider;
 
-            //epever_realtime_1_g.ChargingInputVoltage
-            //epever_realtime_2_g.ChargingInputVoltage
-
         }
         start = stop;
         //backlight
@@ -369,21 +365,15 @@ void __epever_modbus_task(void *user_data)
             // propose  epever_load_g.LoadInputVoltage>1430 but need to check for a good idea
             // 1400 spotted in operation
             copywatts(&sincefull,&running);
-            // sincefull.elapsed_usect = running.elapsed_usect;
-            // sincefull.since70_usect = running.since70_usect;
-            // sincefull.millijouleIn = running.millijouleIn;
-            // sincefull.millijouleOu = running.millijouleOu;
         }
 
-        if (daynum((running.since70_usect * 1000000) ,0)>daynum(todaystart.since70_usect,0)) 
+        if (daynum(running.since70_usect,0)>daynum(todaystart.since70_usect,0)) 
         {
             // new day reset all running numbers / should be written to non volatile memory
-            //pointsa = getstatsa(tm_info->tm_wday);    
+            //pointsa = getstatsa(tm_info->tm_wday); 
+            //ESP_LOGI(TAG, "Daybreak");
+            ESP_LOGI(TAG, "Daybreak %d, %d, %llu, %llu",daynum((running.since70_usect) ,0),daynum(todaystart.since70_usect,0), running.since70_usect, todaystart.since70_usect);
             copywatts(&todaystart,&running);
-            // todaystart.elapsed_usect = running.elapsed_usect;
-            // todaystart.since70_usect = running.since70_usect;
-            // todaystart.millijouleIn = running.millijouleIn;
-            // todaystart.millijouleOu = running.millijouleOu;
             //totalday[tm_info->tm_wday]=0;
         }
         
@@ -392,15 +382,6 @@ void __epever_modbus_task(void *user_data)
             if (save.since70_usect>0)
             {
                 struct watts Watts;
-                //sprintf(buffer,"\nsavetime\tusect\tmillijouleIn\tmillijouleOu\n");
-                //displaytimeval.tv_sec = running.since70_usect / 1000000;
-                //tm_info = localtime(&displaytimeval.tv_sec);
-                // strftime(buffer + strlen(buffer),sizeof(buffer) , "%Y-%m-%d %H:%M:%S\t", tm_info);            
-                // sprintf(buffer + strlen(buffer),"%12d\t",running.elapsed_usect-save.elapsed_usect);
-                // sprintf(buffer + strlen(buffer),"%12d\t",running.millijouleIn-save.millijouleIn);
-                // sprintf(buffer + strlen(buffer),"%12d\n",running.millijouleOu-save.millijouleOu);
-                //ESP_LOGI("stats","%s", buffer);
-                //copywatts(&todaystart,&running);
                 Watts.elapsed_usect= running.elapsed_usect-save.elapsed_usect;
                 Watts.since70_usect = running.since70_usect;
                 Watts.millijouleIn = running.millijouleIn-save.millijouleIn;
@@ -417,15 +398,8 @@ void __epever_modbus_task(void *user_data)
                 vTaskDelay(pdMS_TO_TICKS(10));
                 savestat(Watts);
                 vTaskDelay(pdMS_TO_TICKS(10));
-                //vTaskDelay(pdMS_TO_TICKS(10));
-
-                //vTaskDelay(1000 / portTICK_PERIOD_MS);
             }
             copywatts(&save,&running);
-            // save.elapsed_usect = running.elapsed_usect;
-            // save.since70_usect = running.since70_usect;
-            // save.millijouleIn = running.millijouleIn;
-            // save.millijouleOu = running.millijouleOu; 
         }
         
         if ((loop % swperiod) == 0) // switch every swperiod loops
@@ -435,8 +409,7 @@ void __epever_modbus_task(void *user_data)
                 setinverter = true;          // set it back to on so the avarage can be measured
                 swperiod = measurecount * 2; // measurecount is the average buffer size. Times 2 because the first measurements might be inacurate
             }
-            else if ((avg.PInCC < 20000) && (avg.POutInv < 2600) && (epever_load_g.LoadInputVoltage<1400)) // if less than 150 watt from the panels and below 24 watt demand (the consumption of the inverter)
-            // else if (avg.POutInv<2400)  // below 26 watt (the consumption of the inverter itself)
+            else if ((avg.PInCC < 15000) && (avg.POutInv < 2500) && (epever_load_g.LoadInputVoltage<1400)) // if less than 200 watt from the panels and below 26 watt demand (the consumption of the inverter)
             {
                 prepareinverteroff();
             }
@@ -471,8 +444,6 @@ void __epever_modbus_task(void *user_data)
             tm_info = localtime(&displaytimeval.tv_sec);
             strftime(buffer + strlen(buffer) ,sizeof(buffer) , "DD\t%j %H:%M:%S\n", tm_info);
 
-            //todaystart.elapsed_usect
-
             float battdischarge = (((float)(running.millijouleIn-sincefull.millijouleIn)-(float)(running.millijouleOu-sincefull.millijouleOu))/3600000000);
             sprintf(buffer + strlen(buffer),"Bat.KWh\t%7.3f\n",battdischarge);
 
@@ -484,18 +455,14 @@ void __epever_modbus_task(void *user_data)
             sprintf(buffer + strlen(buffer),"CC2.V\t%7.2f\n",((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
             sprintf(buffer + strlen(buffer),"In 1\t%4d 2 %4d\n",epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
             sprintf(buffer + strlen(buffer),"Solar\t%7.2f\n",((float)sunbar*10000));
-            //sunbar)
+
             lv_label_set_text_fmt(ui_BattLabelval,"%s",buffer);
-            //lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f\nInv.V %7.2f\nCC2.V %7.2f\nIn 1 %4d 2 %4d ",
-             //           &buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000,((float)epever_load_g.LoadInputVoltage)/100,((float)epever_realtime_2_g.DischargingOutputVoltage)/100,epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
-//            lv_label_set_text_fmt(ui_BattLabelval,"%s\n%s\nDif.KWh %7.3f\nLoop %07X\nDlt.sec %7.6f\nInv.V %7.2f\nCC2.V %7.2f\nIn 1 %4d 2 %4d ",
- //                       &buffer[0],&buffer2[0],battdischarge,loop,(float)interval_usec/1000000,((float)epever_load_g.LoadInputVoltage)/100,((float)epever_realtime_2_g.DischargingOutputVoltage)/100,epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
             lv_bar_set_value(ui_Batterybar,(int)(battdischarge*1000), LV_ANIM_OFF);
         }
         tm_info = localtime(&start.tv_sec);
         lv_label_set_text_fmt(ui_Labeltime,"%02d:%02d",tm_info->tm_hour,tm_info->tm_min);
         loop = (loop + 1) % 0xFFFFFFF;
-        //lv_task_handler();
+
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
