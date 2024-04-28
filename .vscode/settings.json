@@ -10,6 +10,9 @@
         "string": "c",
         "stdbool.h": "c",
         "stdlib.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "boardzx4d30ne01s_ur_4827.h": "c",
+        "esp_lcd_panel_ops.h": "c",
+        "esp_freertos_hooks.h": "c"
     }
 }

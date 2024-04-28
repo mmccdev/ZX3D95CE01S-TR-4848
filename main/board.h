@@ -3,4 +3,6 @@
 #include "boardZX3D95CE01S_TR_4848.h"
 #elif CONFIG_ZX4D30NE01S_UR_4827
 #include "boardZX4D30NE01S_UR_4827.h"
+#elif CONFIG_ZX7D00CE01S_UR_8048 
+#include "boardZX7D00CE01S_UR_8048.h"
 #endif
