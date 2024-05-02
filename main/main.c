@@ -40,7 +40,8 @@ void lvgl_task(void* arg) {
     lv_demo_widgets();
  #endif   
  #ifdef CONFIG_ZX3D95CE01S_TR_4848 
-    sht20_test_start();
+    // sensors don't work in case
+    //sht20_test_start();
  #endif   
     epever_modbus_start();
 

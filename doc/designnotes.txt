@@ -11,3 +11,7 @@ https://github.com/espressif/esp-idf/blob/82cceabc6e6a0a2d8c40e2249bc59917cc5e57
 nvs = simple but very wastefull in terms of memory usagage (can't even store 100 times struct of (4 long long's 32 bytes))
 
 SPIFFS 
+
+weekday is not weekday anymore but dayindex 
+Relation  dayindex =  tm_yday%7 to start , later   tm_yday%10 20 whatever
+Radarplot: offset is dayindex next line ++1 % (modulus: 7,10,20 length array)

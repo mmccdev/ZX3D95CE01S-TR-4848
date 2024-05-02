@@ -248,7 +248,8 @@ void __epever_modbus_task(void *user_data)
     lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
 
 #if defined(CONFIG_ZX3D95CE01S_TR_4848) || defined(CONFIG_ZX3D95CE01S_AR_4848)
-    lv_obj_set_y( ui_WeekPanel, 255 );
+    // sensors donn' work in the case
+    //lv_obj_set_y( ui_WeekPanel, 255 );
 #endif
 
 
@@ -423,12 +424,12 @@ void __epever_modbus_task(void *user_data)
         // the panels
         if (sundisplaytoggle==0) sunbar = (float)avg.PInCC/100;
         else sunbar = (float)measurebuf[idx].PInCC/100;
-        lv_label_set_text_fmt(ui_LabelSunnosun, "%c%7.2f",((sundisplaytoggle==0 )? 'A': ' '),sunbar);
+        lv_label_set_text_fmt(ui_LabelSunnosun, "%s%4.0f",((sundisplaytoggle==0 )? "avg": "  "),sunbar);
         lv_bar_set_value(ui_SliderSunnosun, sunbar, LV_ANIM_OFF);
        // the battery
         if (battdisplaytoggle==0) battbar = (float)(avg.PInCC - avg.POutCC - avg.POutInv)/100;
         else battbar = (float)(measurebuf[idx].PInCC - measurebuf[idx].POutCC - measurebuf[idx].POutInv)/100;
-        lv_label_set_text_fmt(ui_LabelChargeDischarge, "%c%7.2f",((battdisplaytoggle==0 )? 'A': ' '),battbar);
+        lv_label_set_text_fmt(ui_LabelChargeDischarge, "%s%4.0f",((battdisplaytoggle==0 )? "avg": "  "),battbar);
         lv_bar_set_value(ui_SliderChargeDischarge, battbar, LV_ANIM_OFF);
         {
    
