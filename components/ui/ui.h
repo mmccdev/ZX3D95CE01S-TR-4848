@@ -37,6 +37,7 @@ extern lv_obj_t * ui_Labeltime;
 extern lv_obj_t * ui_WeekPanel;
 extern lv_obj_t * ui_WeekLabel;
 extern lv_obj_t * ui_SunChart;
+extern lv_obj_t * ui_Range;
 extern lv_obj_t * ui____initial_actions0;
 
 
@@ -46,6 +47,7 @@ LV_IMG_DECLARE(ui_img_onb_png);    // assets/onb.png
 LV_IMG_DECLARE(ui_img_sun_png);    // assets/sun.png
 LV_IMG_DECLARE(ui_img_dark_png);    // assets/dark.png
 LV_IMG_DECLARE(ui_img_charge_png);    // assets/charge.png
+LV_IMG_DECLARE(ui_img_fullrange256_7_png);    // assets/fullrange256_7.png
 
 
 

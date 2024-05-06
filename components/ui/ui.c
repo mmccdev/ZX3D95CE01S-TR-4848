@@ -31,7 +31,9 @@ lv_obj_t * ui_Labeltime;
 lv_obj_t * ui_WeekPanel;
 lv_obj_t * ui_WeekLabel;
 lv_obj_t * ui_SunChart;
+lv_obj_t * ui_Range;
 lv_obj_t * ui____initial_actions0;
+const lv_img_dsc_t * ui_imgset_fullrange256_[1] = {&ui_img_fullrange256_7_png};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16

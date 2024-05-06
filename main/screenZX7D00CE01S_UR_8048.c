@@ -139,8 +139,8 @@ void screen_init(void)
         },
         .timings = {
             .pclk_hz = 24000000,
-            .h_res = 800,
-            .v_res = 480,
+            .h_res = 480,
+            .v_res = 800,
             .hsync_pulse_width = 10,
             .hsync_back_porch = 40,
             .hsync_front_porch = 40,    // 890

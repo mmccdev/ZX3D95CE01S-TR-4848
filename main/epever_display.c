@@ -251,8 +251,6 @@ void __epever_modbus_task(void *user_data)
     // sensors donn' work in the case
     //lv_obj_set_y( ui_WeekPanel, 255 );
 #endif
-
-
     static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
     lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);    
 
@@ -281,6 +279,13 @@ void __epever_modbus_task(void *user_data)
        
     }
     setweeklabel(ui_WeekLabel,totalday);
+//const lv_img_dsc_t ui_img_fullrange256_7_png = {
+
+    for (x = 0; x < 32; x++)
+    {
+        
+        lv_img_buf_set_palette(&ui_img_fullrange256_7_png, x, lv_color_make(x*2, x*2, x*2));
+    }
 
     pointsa = getstatsa(tm_info->tm_wday);
 
