@@ -78,7 +78,7 @@ static void display_backlight_init()
                                           .timer_sel  = LEDC_TIMER_2};
     ledc_channel_config(&ledc_channel);
     ledc_stop(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, 0);
-    display_set_backlight(40);
+    //display_set_backlight(40);
 }
 
 void prepareinverteroff()
@@ -265,7 +265,7 @@ void __epever_modbus_task(void *user_data)
 //    int CANVAS_Width = lv_obj_get_width(ui_WeekPanel);
 //    int CANVAS_Height = lv_obj_get_height(ui_WeekPanel);
     //lv_obj_move_foreground(ui_WeekLabel);
-    uint32_t x;
+    uint16_t x;
     uint32_t weekday;
     int totalday[7]={0,0,0,0,0,0,0};
     for (weekday = 0; weekday < 7; weekday++)
@@ -276,15 +276,29 @@ void __epever_modbus_task(void *user_data)
             totalday[weekday]+=pointsa[x];
             drawmespoint(canvas, weekday, x,pointsa[x]);
         }
-       
     }
     setweeklabel(ui_WeekLabel,totalday);
 //const lv_img_dsc_t ui_img_fullrange256_7_png = {
-
-    for (x = 0; x < 32; x++)
+    //lv_image_set_inner_align(ui_Heatmap,XCHAL_CA_BITS);
+//lv_image_set_inner_align();
+    for (x = 0; x < 256; x++)
     {
-        
-        lv_img_buf_set_palette(&ui_img_fullrange256_7_png, x, lv_color_make(x*2, x*2, x*2));
+
+            // lv_color32_t c32;
+        //c32.full      = lv_color_to32(c);
+
+        //&ui_img_baseheat_png->data
+
+        uint8_t * buf = (uint8_t *)&ui_img_baseheat_png.data;
+        //lv_memcpy_small(&buf[1024+x], x, 1);
+        buf[1024+x] = x;
+        buf[1024+288+x] = x;
+        buf[1024+576+x] = x;
+        buf[1024+864+x] = x;
+    }
+    for (x = 0; x < 256; x++)
+    {
+        lv_img_buf_set_palette(&ui_img_baseheat_png, x, lv_color_make((uint8_t)(x), (uint8_t)(x), 0x80 - (uint8_t)(x / 2)));
     }
 
     pointsa = getstatsa(tm_info->tm_wday);
@@ -342,6 +356,11 @@ void __epever_modbus_task(void *user_data)
         {
             display_set_backlight(0);
         }
+        else
+        {
+            display_set_backlight(100);
+        }
+        /*
         else if (avg.PInCC < 1) // .01 W
         {
             // could be because full battery
@@ -362,6 +381,7 @@ void __epever_modbus_task(void *user_data)
         {
             display_set_backlight(100);
         }
+        */
         displaytimeval.tv_sec = running.since70_usect / 1000000;
         tm_info = localtime(&displaytimeval.tv_sec);
 

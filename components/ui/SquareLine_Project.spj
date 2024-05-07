@@ -14,7 +14,7 @@
               {
                 "guid": "GUID94360763-789849S1382217",
                 "deepid": 1328930638,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": -526902422,
@@ -314,7 +314,7 @@
               {
                 "guid": "GUID86518176-703001S1482223",
                 "deepid": 793828424,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": -20237090,
@@ -620,7 +620,7 @@
               {
                 "guid": "GUID73635596-703002S7742223",
                 "deepid": -269335211,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": 2097153800,
@@ -1202,7 +1202,7 @@
           {
             "guid": "GUID93480836-672118S3532223",
             "deepid": 1829978044,
-            "locked": false,
+            "locked": true,
             "properties": [
               {
                 "nid": -1009874506,
@@ -1505,12 +1505,13 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "IMGBUTTON"
+            "saved_objtypeKey": "IMGBUTTON",
+            "tree_closed": true
           },
           {
             "guid": "GUID96428108-702452S4292223",
             "deepid": 793828424,
-            "locked": false,
+            "locked": true,
             "properties": [
               {
                 "nid": -795978392,
@@ -1811,7 +1812,8 @@
                 "InheritedType": 2
               }
             ],
-            "saved_objtypeKey": "LABEL"
+            "saved_objtypeKey": "LABEL",
+            "tree_closed": true
           },
           {
             "guid": "GUID31237317-181840S7752224",
@@ -1820,7 +1822,7 @@
               {
                 "guid": "GUID13828882-185873S1192224",
                 "deepid": 1726367133,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": 1637199216,
@@ -2180,7 +2182,7 @@
               {
                 "guid": "GUID81189521-181839S7752224",
                 "deepid": 1908854948,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": 1542401495,
@@ -2510,7 +2512,7 @@
               {
                 "guid": "GUID69348356-753845S612225",
                 "deepid": -13369230,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": -2055972257,
@@ -2824,7 +2826,7 @@
               {
                 "guid": "GUID45231688-754763S2472225",
                 "deepid": -13369230,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": -1585969603,
@@ -3483,7 +3485,7 @@
               {
                 "guid": "GUID39847351-184064S6272224",
                 "deepid": 1726367133,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": -522977159,
@@ -3843,7 +3845,7 @@
               {
                 "guid": "GUID28056099-184613S6282224",
                 "deepid": 1908854948,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": 965520678,
@@ -4172,7 +4174,7 @@
               {
                 "guid": "GUID37265773-755215S4662225",
                 "deepid": -13369230,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": -360577281,
@@ -4485,7 +4487,7 @@
                 "tree_closed": true
               }
             ],
-            "locked": false,
+            "locked": true,
             "properties": [
               {
                 "nid": 1935543053,
@@ -4846,7 +4848,7 @@
           {
             "guid": "GUID87873052-205429S5002224",
             "deepid": 536644463,
-            "locked": false,
+            "locked": true,
             "properties": [
               {
                 "nid": 421468132,
@@ -5171,7 +5173,7 @@
               {
                 "guid": "GUID40921815-792902S4182268",
                 "deepid": -762778893,
-                "locked": false,
+                "locked": true,
                 "properties": [
                   {
                     "nid": 236316398,
@@ -5481,7 +5483,7 @@
                 "saved_objtypeKey": "LABEL"
               }
             ],
-            "locked": false,
+            "locked": true,
             "properties": [
               {
                 "nid": -1366851503,
@@ -5772,7 +5774,7 @@
           {
             "guid": "GUID14948882-715812S8112252",
             "deepid": -178082238,
-            "locked": false,
+            "locked": true,
             "properties": [
               {
                 "nid": -318926544,
@@ -6276,7 +6278,7 @@
               {
                 "nid": 1986262470,
                 "strtype": "OBJECT/Name",
-                "strval": "Range",
+                "strval": "Heatmap",
                 "InheritedType": 10
               },
               {
@@ -6304,11 +6306,11 @@
               },
               {
                 "nid": 1862207154,
-                "flags": 17,
+                "flags": 34,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -66,
-                  -11
+                  -13,
+                  -7
                 ],
                 "InheritedType": 7
               },
@@ -6330,7 +6332,6 @@
               },
               {
                 "nid": 1373136757,
-                "flags": 1048576,
                 "strtype": "OBJECT/Flags",
                 "InheritedType": 1
               },
@@ -6528,7 +6529,7 @@
               {
                 "nid": 405919623,
                 "strtype": "IMAGE/Asset",
-                "strval": "assets/fullrange256_7.png",
+                "strval": "assets/baseheat.png",
                 "InheritedType": 5
               },
               {
@@ -6838,7 +6839,7 @@
     "theme_color2": 0,
     "uiExportFolderPath": "C:\\Users\\winbaas\\Documents\\PlatformIO\\Projects\\ZX3D95CE01S-TR-4848\\components\\ui",
     "projectExportFolderPath": "",
-    "backup_cnt": 708,
+    "backup_cnt": 721,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

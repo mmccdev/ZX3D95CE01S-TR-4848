@@ -9,4 +9,4 @@ images/ui_img_onb_png.c
 images/ui_img_sun_png.c
 images/ui_img_dark_png.c
 images/ui_img_charge_png.c
-images/ui_img_fullrange256_7_png.c
+images/ui_img_baseheat_png.c
