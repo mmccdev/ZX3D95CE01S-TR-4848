@@ -213,6 +213,7 @@ void copywatts(struct watts *to,struct watts *from)
     to->millijouleIn = from->millijouleIn;
     to->millijouleOu = from->millijouleOu;
 }
+LV_IMG_DECLARE(ui_img_baseheat_mod_png);    // modified because of LV_IMG_CF_INDEXED_8BIT
 
 void __epever_modbus_task(void *user_data)
 {
@@ -234,6 +235,7 @@ void __epever_modbus_task(void *user_data)
     epever_discrete_cc_t epever_discrete_cc = {};
     struct timeval displaytimeval = {.tv_sec = 0};
     struct tm *tm_info;    
+    lv_img_set_src(ui_Heatmap, &ui_img_baseheat_mod_png);
 
     display_backlight_init();
     display_set_backlight(100);
@@ -278,19 +280,10 @@ void __epever_modbus_task(void *user_data)
         }
     }
     setweeklabel(ui_WeekLabel,totalday);
-//const lv_img_dsc_t ui_img_fullrange256_7_png = {
-    //lv_image_set_inner_align(ui_Heatmap,XCHAL_CA_BITS);
-//lv_image_set_inner_align();
+  
     for (x = 0; x < 256; x++)
     {
-
-            // lv_color32_t c32;
-        //c32.full      = lv_color_to32(c);
-
-        //&ui_img_baseheat_png->data
-
-        uint8_t * buf = (uint8_t *)&ui_img_baseheat_png.data;
-        //lv_memcpy_small(&buf[1024+x], x, 1);
+        uint8_t * buf = (uint8_t *)&ui_img_baseheat_mod_png.data;        
         buf[1024+x] = x;
         buf[1024+288+x] = x;
         buf[1024+576+x] = x;
@@ -298,7 +291,11 @@ void __epever_modbus_task(void *user_data)
     }
     for (x = 0; x < 256; x++)
     {
-        lv_img_buf_set_palette(&ui_img_baseheat_png, x, lv_color_make((uint8_t)(x), (uint8_t)(x), 0x80 - (uint8_t)(x / 2)));
+//        lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make((uint8_t)(x), (uint8_t)(x), 0x80 - (uint8_t)(x / 2)));
+        if (x<128)
+            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make((uint8_t)(x*2), (uint8_t)(x*2), 0));
+        else
+            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(255, 255, (uint8_t)(x-128)*2));
     }
 
     pointsa = getstatsa(tm_info->tm_wday);

@@ -291,7 +291,6 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_font(ui_SunChart, &lv_font_montserrat_10, LV_PART_TICKS | LV_STATE_DEFAULT);
 
     ui_Heatmap = lv_img_create(ui_Screen1);
-    lv_img_set_src(ui_Heatmap, &ui_img_baseheat_png);
     lv_obj_set_width(ui_Heatmap, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Heatmap, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Heatmap, lv_pct(-13));

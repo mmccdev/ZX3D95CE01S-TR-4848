@@ -47,7 +47,6 @@ LV_IMG_DECLARE(ui_img_onb_png);    // assets/onb.png
 LV_IMG_DECLARE(ui_img_sun_png);    // assets/sun.png
 LV_IMG_DECLARE(ui_img_dark_png);    // assets/dark.png
 LV_IMG_DECLARE(ui_img_charge_png);    // assets/charge.png
-LV_IMG_DECLARE(ui_img_baseheat_png);    // assets/baseheat.png
 
 
 
