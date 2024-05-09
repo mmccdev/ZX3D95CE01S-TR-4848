@@ -229,14 +229,24 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_img_recolor(ui_ImageCharge, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_img_recolor_opa(ui_ImageCharge, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_WeekPanel = lv_obj_create(ui_Screen1);
-    lv_obj_set_width(ui_WeekPanel, 288);
-    lv_obj_set_height(ui_WeekPanel, 84);
-    lv_obj_set_x(ui_WeekPanel, 30);
-    lv_obj_set_y(ui_WeekPanel, 135);
-    lv_obj_clear_flag(ui_WeekPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_WeekPanel, lv_color_hex(0x000080), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_WeekPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_SunChart = lv_chart_create(ui_Screen1);
+    lv_obj_set_width(ui_SunChart, 288);
+    lv_obj_set_height(ui_SunChart, 84);
+    lv_obj_set_x(ui_SunChart, 30);
+    lv_obj_set_y(ui_SunChart, 135);
+    lv_chart_set_type(ui_SunChart, LV_CHART_TYPE_LINE);
+    lv_chart_set_point_count(ui_SunChart, 96);
+    lv_chart_set_range(ui_SunChart, LV_CHART_AXIS_SECONDARY_Y, 0, 500);
+    lv_chart_set_div_line_count(ui_SunChart, 0, 0);
+    lv_chart_set_axis_tick(ui_SunChart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 24, 2, true, 50);
+    lv_chart_set_axis_tick(ui_SunChart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 5, 2, true, 50);
+    lv_chart_set_axis_tick(ui_SunChart, LV_CHART_AXIS_SECONDARY_Y, 10, 5, 5, 2, false, 25);
+    lv_obj_set_style_bg_color(ui_SunChart, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SunChart, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+
+
+    lv_obj_set_style_text_font(ui_SunChart, &lv_font_montserrat_10, LV_PART_TICKS | LV_STATE_DEFAULT);
 
     ui_Labeltime = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Labeltime, LV_SIZE_CONTENT);   /// 20
@@ -251,31 +261,11 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_line_space(ui_Labeltime, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Labeltime, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_SunChart = lv_chart_create(ui_Screen1);
-    lv_obj_set_width(ui_SunChart, 288);
-    lv_obj_set_height(ui_SunChart, 84);
-    lv_obj_set_x(ui_SunChart, 30);
-    lv_obj_set_y(ui_SunChart, 135);
-    lv_chart_set_type(ui_SunChart, LV_CHART_TYPE_LINE);
-    lv_chart_set_point_count(ui_SunChart, 96);
-    lv_chart_set_range(ui_SunChart, LV_CHART_AXIS_SECONDARY_Y, 0, 500);
-    lv_chart_set_div_line_count(ui_SunChart, 0, 0);
-    lv_chart_set_axis_tick(ui_SunChart, LV_CHART_AXIS_PRIMARY_X, 10, 5, 24, 2, true, 50);
-    lv_chart_set_axis_tick(ui_SunChart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 5, 2, true, 50);
-    lv_chart_set_axis_tick(ui_SunChart, LV_CHART_AXIS_SECONDARY_Y, 10, 5, 5, 2, false, 25);
-    lv_obj_set_style_bg_color(ui_SunChart, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_SunChart, 32, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-
-
-    lv_obj_set_style_text_font(ui_SunChart, &lv_font_montserrat_10, LV_PART_TICKS | LV_STATE_DEFAULT);
-
     ui_Heatmap = lv_img_create(ui_Screen1);
     lv_obj_set_width(ui_Heatmap, 288);
     lv_obj_set_height(ui_Heatmap, 192);
-    lv_obj_set_x(ui_Heatmap, lv_pct(-13));
-    lv_obj_set_y(ui_Heatmap, lv_pct(-7));
-    lv_obj_set_align(ui_Heatmap, LV_ALIGN_CENTER);
+    lv_obj_set_x(ui_Heatmap, 33);
+    lv_obj_set_y(ui_Heatmap, 250);
     lv_obj_add_flag(ui_Heatmap, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Heatmap, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 

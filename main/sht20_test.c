@@ -25,7 +25,7 @@ void __sht20_test_task(void* user_data)
     {
         float get_tem_data = sht20_get_temperature();
         float get_hum_data = sht20_get_humidity();
-        lv_label_set_text_fmt(ui_EnvironLabelRctn,"Temp %3.1f Hum %3.1f",get_tem_data,get_hum_data);   
+//        lv_label_set_text_fmt(ui_EnvironLabelRctn,"Temp %3.1f Hum %3.1f",get_tem_data,get_hum_data);   
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);

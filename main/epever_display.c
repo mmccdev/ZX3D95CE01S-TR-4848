@@ -168,7 +168,7 @@ void drawheatmappoint(const lv_img_dsc_t * dsc,int weekday,int x,int point)
     for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
     {
         uint8_t * buf = (uint8_t *)dsc->data+1024+(y*288)+x; 
-        buf[0]=(uint8_t)point/2;
+        buf[0]=(uint8_t)(point/2);
         //lv_img_buf_set_px_color(dsc,x,y,1);
         //lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
     } 
@@ -287,6 +287,16 @@ void __epever_modbus_task(void *user_data)
             //drawmespoint(canvas, weekday, x,pointsa[x]);
         }
     }
+    for (weekday = 7; weekday < 16; weekday++)
+    {
+        //pointsa = 0;
+        for (x = 0; x < CANVAS_WIDTH; x++)
+        {
+            //totalday[weekday]+=pointsa[x];
+            drawheatmappoint(&ui_img_baseheat_mod_png,weekday,x,0);
+            //drawmespoint(canvas, weekday, x,pointsa[x]);
+        }
+    }    
     setweeklabel(totalday);
     uint8_t * buf = (uint8_t *)&ui_img_baseheat_mod_png.data;      
     for (x = 0; x < 256; x++)
