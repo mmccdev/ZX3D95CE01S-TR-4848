@@ -159,19 +159,33 @@ int daynum(long long usect, int utc_offset_min)
 {
     return ((usect/1000000)+utc_offset_min*60)/SECS_IN_DAY;
 }
+void drawheatmappoint(const lv_img_dsc_t * dsc,int weekday,int x,int point)
+{
+    
+    // one day: 192 / 12 so 16 days room for now (can compact later)
+    //uint8_t * buf = (uint8_t *)&dsc.data; 
+    uint32_t y;
+    for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
+    {
+        uint8_t * buf = (uint8_t *)dsc->data+1024+(y*288)+x; 
+        buf[0]=(uint8_t)point/2;
+        //lv_img_buf_set_px_color(dsc,x,y,1);
+        //lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
+    } 
+}
 void drawmespoint(lv_obj_t * canvas,int weekday,int x,int point)
 {
     
     //if (x > 40)
     {
         uint32_t y;
-        for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
+       for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
         {
             lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
-        }
+        } 
     }
 }
-void setweeklabel(lv_obj_t * canvas,int * totalday )
+void setweeklabel(int * totalday )
 {
     char weeklabelarr[128] = {0};    
     for (int weekday = 0; weekday < 7; weekday++)
@@ -221,7 +235,6 @@ void __epever_modbus_task(void *user_data)
     uint32_t loop = 1;
     int idx = loop;
     unsigned long long interval_usec = 0;
-    //long long since70_usect_ls =0;
     float sunbar,battbar;
     struct timeval start, stop; 
     struct measures sum = {0};
@@ -247,26 +260,20 @@ void __epever_modbus_task(void *user_data)
     master_read_discrete_cc(&epever_discrete_cc);
     gettimeofday(&start, NULL);
     
-    lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
+    //lv_obj_t * canvas = lv_canvas_create(ui_WeekPanel);
 
 #if defined(CONFIG_ZX3D95CE01S_TR_4848) || defined(CONFIG_ZX3D95CE01S_AR_4848)
     // sensors donn' work in the case
     //lv_obj_set_y( ui_WeekPanel, 255 );
 #endif
-    static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
-    lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);    
+    //static lv_color_t cbuf[LV_CANVAS_BUF_SIZE_TRUE_COLOR(CANVAS_WIDTH, CANVAS_HEIGHT)];
+    //lv_canvas_set_buffer(canvas, cbuf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);    
 
     initlvgl();
     initstats();
     
     tm_info = localtime(&now.tv_sec);
-
     short int *pointsa ;
-    
-//ui_WeekPanel
-//    int CANVAS_Width = lv_obj_get_width(ui_WeekPanel);
-//    int CANVAS_Height = lv_obj_get_height(ui_WeekPanel);
-    //lv_obj_move_foreground(ui_WeekLabel);
     uint16_t x;
     uint32_t weekday;
     int totalday[7]={0,0,0,0,0,0,0};
@@ -276,26 +283,28 @@ void __epever_modbus_task(void *user_data)
         for (x = 0; x < CANVAS_WIDTH; x++)
         {
             totalday[weekday]+=pointsa[x];
-            drawmespoint(canvas, weekday, x,pointsa[x]);
+            drawheatmappoint(&ui_img_baseheat_mod_png,weekday,x,pointsa[x]);
+            //drawmespoint(canvas, weekday, x,pointsa[x]);
         }
     }
-    setweeklabel(ui_WeekLabel,totalday);
-  
+    setweeklabel(totalday);
+    uint8_t * buf = (uint8_t *)&ui_img_baseheat_mod_png.data;      
     for (x = 0; x < 256; x++)
     {
-        uint8_t * buf = (uint8_t *)&ui_img_baseheat_mod_png.data;        
-        buf[1024+x] = x;
-        buf[1024+288+x] = x;
-        buf[1024+576+x] = x;
-        buf[1024+864+x] = x;
+        int y = 1024+(288*188)+x;
+        buf[y] = x;
+        buf[288+y] = x;
+        buf[576+y] = x;
+        buf[864+y] = x;
     }
     for (x = 0; x < 256; x++)
     {
-//        lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make((uint8_t)(x), (uint8_t)(x), 0x80 - (uint8_t)(x / 2)));
-        if (x<128)
-            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make((uint8_t)(x*2), (uint8_t)(x*2), 0));
+        if (x<86)
+            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(0, 0, (uint8_t)(x*3)));
+        else if (x<171)
+            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(0, (uint8_t)((x-85)*3), 255));
         else
-            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(255, 255, (uint8_t)(x-128)*2));
+            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(255, 255, (uint8_t)(x-170)*3));
     }
 
     pointsa = getstatsa(tm_info->tm_wday);
@@ -345,7 +354,6 @@ void __epever_modbus_task(void *user_data)
             avg.PInCC = sum.PInCC / divider;
             avg.POutCC = sum.POutCC / divider;
             avg.POutInv = sum.POutInv / divider;
-
         }
         start = stop;
         //backlight
@@ -415,8 +423,9 @@ void __epever_modbus_task(void *user_data)
                 totalday[tm_info->tm_wday] -=pointsa[measpos];
                 pointsa[measpos]=(short int)(Watts.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));
                 totalday[tm_info->tm_wday] +=pointsa[measpos];
-                drawmespoint(canvas, tm_info->tm_wday, measpos,pointsa[measpos]);
-                setweeklabel(ui_WeekLabel,totalday);
+                drawheatmappoint(&ui_img_baseheat_mod_png,tm_info->tm_wday,measpos,pointsa[measpos]);
+                //drawmespoint(canvas, tm_info->tm_wday, measpos,pointsa[measpos]);
+                setweeklabel(totalday);
 
                 vTaskDelay(pdMS_TO_TICKS(10));
                 savestat(Watts);

@@ -23,7 +23,6 @@ extern lv_obj_t * ui_Batterybar;
 extern lv_obj_t * ui_BattLabelval;
 extern lv_obj_t * ui_BatteryImage;
 extern lv_obj_t * ui_Inverterbutton;
-extern lv_obj_t * ui_EnvironLabelRctn;
 extern lv_obj_t * ui_SunnosunPanel;
 extern lv_obj_t * ui_SliderSunnosun;
 extern lv_obj_t * ui_LabelSunnosun;
@@ -33,11 +32,11 @@ extern lv_obj_t * ui_PanelChargeDisCharge;
 extern lv_obj_t * ui_SliderChargeDischarge;
 extern lv_obj_t * ui_LabelChargeDischarge;
 extern lv_obj_t * ui_ImageCharge;
-extern lv_obj_t * ui_Labeltime;
 extern lv_obj_t * ui_WeekPanel;
-extern lv_obj_t * ui_WeekLabel;
+extern lv_obj_t * ui_Labeltime;
 extern lv_obj_t * ui_SunChart;
 extern lv_obj_t * ui_Heatmap;
+extern lv_obj_t * ui_WeekLabel;
 extern lv_obj_t * ui____initial_actions0;
 
 

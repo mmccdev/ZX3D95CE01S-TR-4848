@@ -76,15 +76,6 @@ void ui_Screen1_screen_init(void)
                       LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
     lv_obj_set_scrollbar_mode(ui_Inverterbutton, LV_SCROLLBAR_MODE_OFF);
 
-    ui_EnvironLabelRctn = lv_label_create(ui_Screen1);
-    lv_obj_set_width(ui_EnvironLabelRctn, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_EnvironLabelRctn, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_EnvironLabelRctn, 154);
-    lv_obj_set_y(ui_EnvironLabelRctn, 86);
-    lv_label_set_text(ui_EnvironLabelRctn, "Temp xx.x hum xx.x");
-    lv_obj_set_style_text_color(ui_EnvironLabelRctn, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_EnvironLabelRctn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_SunnosunPanel = lv_obj_create(ui_Screen1);
     lv_obj_set_width(ui_SunnosunPanel, 480);
     lv_obj_set_height(ui_SunnosunPanel, 39);
@@ -238,6 +229,15 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_img_recolor(ui_ImageCharge, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_img_recolor_opa(ui_ImageCharge, 64, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_WeekPanel = lv_obj_create(ui_Screen1);
+    lv_obj_set_width(ui_WeekPanel, 288);
+    lv_obj_set_height(ui_WeekPanel, 84);
+    lv_obj_set_x(ui_WeekPanel, 30);
+    lv_obj_set_y(ui_WeekPanel, 135);
+    lv_obj_clear_flag(ui_WeekPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_WeekPanel, lv_color_hex(0x000080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_WeekPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     ui_Labeltime = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Labeltime, LV_SIZE_CONTENT);   /// 20
     lv_obj_set_height(ui_Labeltime, LV_SIZE_CONTENT);    /// 10
@@ -250,26 +250,6 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_letter_space(ui_Labeltime, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_line_space(ui_Labeltime, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Labeltime, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_WeekPanel = lv_obj_create(ui_Screen1);
-    lv_obj_set_width(ui_WeekPanel, 288);
-    lv_obj_set_height(ui_WeekPanel, 84);
-    lv_obj_set_x(ui_WeekPanel, 30);
-    lv_obj_set_y(ui_WeekPanel, 135);
-    lv_obj_clear_flag(ui_WeekPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_WeekPanel, lv_color_hex(0x000080), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_WeekPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_WeekLabel = lv_label_create(ui_WeekPanel);
-    lv_obj_set_width(ui_WeekLabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_WeekLabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_WeekLabel, -130);
-    lv_obj_set_y(ui_WeekLabel, 5);
-    lv_obj_set_align(ui_WeekLabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_WeekLabel, "Tex0\nTex1\nTex2\nTex3\nTex4\nTex5\nTex6");
-    lv_obj_set_style_text_color(ui_WeekLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_WeekLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_WeekLabel, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SunChart = lv_chart_create(ui_Screen1);
     lv_obj_set_width(ui_SunChart, 288);
@@ -291,12 +271,22 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_font(ui_SunChart, &lv_font_montserrat_10, LV_PART_TICKS | LV_STATE_DEFAULT);
 
     ui_Heatmap = lv_img_create(ui_Screen1);
-    lv_obj_set_width(ui_Heatmap, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Heatmap, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_Heatmap, 288);
+    lv_obj_set_height(ui_Heatmap, 192);
     lv_obj_set_x(ui_Heatmap, lv_pct(-13));
     lv_obj_set_y(ui_Heatmap, lv_pct(-7));
     lv_obj_set_align(ui_Heatmap, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Heatmap, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Heatmap, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_WeekLabel = lv_label_create(ui_Heatmap);
+    lv_obj_set_width(ui_WeekLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_WeekLabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_WeekLabel, 1);
+    lv_obj_set_y(ui_WeekLabel, 5);
+    lv_label_set_text(ui_WeekLabel, "Tex0\nTex1\nTex2\nTex3\nTex4\nTex5\nTex6");
+    lv_obj_set_style_text_color(ui_WeekLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_WeekLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WeekLabel, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 }

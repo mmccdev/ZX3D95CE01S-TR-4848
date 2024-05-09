@@ -181,6 +181,7 @@ void initstats(void)
     }
 
 }
+#ifdef NOTDEFINED
 void dummy(void)
 {
     printf("Demo LittleFs implementation by esp_littlefs!\n");
@@ -319,3 +320,4 @@ void dummy(void)
     esp_vfs_littlefs_unregister(conf.partition_label);
     ESP_LOGI(TAG, "LittleFS unmounted");
 }
+#endif

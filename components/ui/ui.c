@@ -17,7 +17,6 @@ lv_obj_t * ui_Batterybar;
 lv_obj_t * ui_BattLabelval;
 lv_obj_t * ui_BatteryImage;
 lv_obj_t * ui_Inverterbutton;
-lv_obj_t * ui_EnvironLabelRctn;
 lv_obj_t * ui_SunnosunPanel;
 lv_obj_t * ui_SliderSunnosun;
 lv_obj_t * ui_LabelSunnosun;
@@ -27,11 +26,11 @@ lv_obj_t * ui_PanelChargeDisCharge;
 lv_obj_t * ui_SliderChargeDischarge;
 lv_obj_t * ui_LabelChargeDischarge;
 lv_obj_t * ui_ImageCharge;
-lv_obj_t * ui_Labeltime;
 lv_obj_t * ui_WeekPanel;
-lv_obj_t * ui_WeekLabel;
+lv_obj_t * ui_Labeltime;
 lv_obj_t * ui_SunChart;
 lv_obj_t * ui_Heatmap;
+lv_obj_t * ui_WeekLabel;
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
