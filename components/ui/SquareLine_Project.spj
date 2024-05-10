@@ -1202,7 +1202,7 @@
           {
             "guid": "GUID93480836-672118S3532223",
             "deepid": 1829978044,
-            "locked": true,
+            "locked": false,
             "properties": [
               {
                 "nid": -1009874506,
@@ -1469,7 +1469,7 @@
               {
                 "nid": -1793034769,
                 "strtype": "IMGBUTTON/Image_pressed",
-                "strval": "assets\\offb.png",
+                "strval": "assets/offb.png",
                 "InheritedType": 5
               },
               {
@@ -1487,7 +1487,7 @@
               {
                 "nid": 1583513968,
                 "strtype": "IMGBUTTON/Image_checked_pressed",
-                "strval": "assets\\onb.png",
+                "strval": "assets/onb.png",
                 "InheritedType": 5
               },
               {
@@ -5045,7 +5045,7 @@
           {
             "guid": "GUID87873052-205429S5002224",
             "deepid": 536644463,
-            "locked": true,
+            "locked": false,
             "properties": [
               {
                 "nid": 421468132,
@@ -5081,8 +5081,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  14,
-                  79
+                  9,
+                  78
                 ],
                 "InheritedType": 7
               },
@@ -5407,8 +5407,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      1,
-                      5
+                      0,
+                      0
                     ],
                     "InheritedType": 7
                   },
@@ -5717,7 +5717,7 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  33,
+                  30,
                   250
                 ],
                 "InheritedType": 7
@@ -5974,7 +5974,7 @@
         ],
         "isPage": true,
         "editor_posx": 610,
-        "editor_posy": -580,
+        "editor_posy": -610,
         "locked": false,
         "properties": [
           {
@@ -6247,7 +6247,7 @@
     "theme_color2": 0,
     "uiExportFolderPath": "C:\\Users\\winbaas\\Documents\\PlatformIO\\Projects\\ZX3D95CE01S-TR-4848\\components\\ui",
     "projectExportFolderPath": "",
-    "backup_cnt": 767,
+    "backup_cnt": 774,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

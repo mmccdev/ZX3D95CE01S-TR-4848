@@ -17,6 +17,7 @@
 #include "esp_log.h"
 #include "esp_debug_helpers.h"
 #include "stats.h"
+LV_IMG_DECLARE(ui_img_baseheat_mod_png);    // modified because of LV_IMG_CF_INDEXED_8BIT
 
 #define TAG "epever display"
 #define LEDC_DUTY_0             (0) // Set duty to 0%. 
@@ -167,10 +168,13 @@ void drawheatmappoint(const lv_img_dsc_t * dsc,int weekday,int x,int point)
     uint32_t y;
     for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
     {
-        uint8_t * buf = (uint8_t *)dsc->data+1024+(y*288)+x; 
-        buf[0]=(uint8_t)(point/2);
-        //lv_img_buf_set_px_color(dsc,x,y,1);
-        //lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
+    
+        // uint8_t * buf = (uint8_t *)dsc->data+1024+(y*288)+x; 
+        // buf[0]=(uint8_t)(point/2);
+
+        lv_color16_t fo;
+        fo.full = (uint8_t)(point/2);
+        lv_img_buf_set_px_color(dsc,x,y,fo);        
     } 
 }
 void drawmespoint(lv_obj_t * canvas,int weekday,int x,int point)
@@ -227,13 +231,13 @@ void copywatts(struct watts *to,struct watts *from)
     to->millijouleIn = from->millijouleIn;
     to->millijouleOu = from->millijouleOu;
 }
-LV_IMG_DECLARE(ui_img_baseheat_mod_png);    // modified because of LV_IMG_CF_INDEXED_8BIT
+
 
 void __epever_modbus_task(void *user_data)
 {
     const long loginterval_usec = (1000000 * LOG_INTERVAL_SEC);
     uint32_t loop = 1;
-    int idx = loop;
+    int idx;//= loop;
     unsigned long long interval_usec = 0;
     float sunbar,battbar;
     struct timeval start, stop; 
@@ -298,21 +302,28 @@ void __epever_modbus_task(void *user_data)
         }
     }    
     setweeklabel(totalday);
-    uint8_t * buf = (uint8_t *)&ui_img_baseheat_mod_png.data;      
+    //uint8_t * buf = (uint8_t *)&ui_img_baseheat_mod_png.data;      
     for (x = 0; x < 256; x++)
     {
-        int y = 1024+(288*188)+x;
-        buf[y] = x;
-        buf[288+y] = x;
-        buf[576+y] = x;
-        buf[864+y] = x;
+        //int y = 1024+(288*188)+x;
+        lv_color16_t fo;
+        fo.full = x;
+        lv_img_buf_set_px_color(&ui_img_baseheat_mod_png,x,188,fo);
+        lv_img_buf_set_px_color(&ui_img_baseheat_mod_png,x,189,fo);
+        lv_img_buf_set_px_color(&ui_img_baseheat_mod_png,x,190,fo);
+        lv_img_buf_set_px_color(&ui_img_baseheat_mod_png,x,191,fo);
+
+        // buf[y] = x;
+        // buf[288+y] = x;
+        // buf[576+y] = x;
+        // buf[864+y] = x;
     }
     for (x = 0; x < 256; x++)
     {
         if (x<86)
-            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(0, 0, (uint8_t)(x*3)));
+            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make((uint8_t)(x*3),0 , 0));
         else if (x<171)
-            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(0, (uint8_t)((x-85)*3), 255));
+            lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(255,(uint8_t)((x-85)*3), 0));
         else
             lv_img_buf_set_palette(&ui_img_baseheat_mod_png, x, lv_color_make(255, 255, (uint8_t)(x-170)*3));
     }
@@ -326,11 +337,12 @@ void __epever_modbus_task(void *user_data)
     {
         ESP_LOGV("LOOP ", "%d", loop);
         //  read all significant
-        char buffer[1024];
         master_read_realtime_cc1(&epever_realtime_1_g);
         master_read_realtime_cc2(&epever_realtime_2_g);
         master_read_load_inverter(&epever_load_g);
         master_read_status_inverter(&epever_status_inverter);
+        ESP_LOGI("Inverter ", "%d %d", epever_status_inverter.InverterOnoff,setinverter);
+
         if (epever_status_inverter.InverterOnoff != setinverter)
         {
             master_set_status_inverter(setinverter);
@@ -474,6 +486,7 @@ void __epever_modbus_task(void *user_data)
         lv_bar_set_value(ui_SliderChargeDischarge, battbar, LV_ANIM_OFF);
         {
    
+            char buffer[1024];
             displaytimeval.tv_sec = running.elapsed_usect / 1000000;
             tm_info = localtime(&displaytimeval.tv_sec);
             strftime(buffer,sizeof(buffer) , "DT\t%j %H:%M:%S\n", tm_info);
@@ -495,7 +508,7 @@ void __epever_modbus_task(void *user_data)
             sprintf(buffer + strlen(buffer),"Dlt.sec\t%5.6f\n",(float)interval_usec/1000000);
             sprintf(buffer + strlen(buffer),"Inv.V\t%7.2f\n",((float)epever_load_g.LoadInputVoltage)/100);
             sprintf(buffer + strlen(buffer),"CC2.V\t%7.2f\n",((float)epever_realtime_2_g.DischargingOutputVoltage)/100);
-            sprintf(buffer + strlen(buffer),"In 1\t%4d 2 %4d\n",epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
+            sprintf(buffer + strlen(buffer),"In 1\t%4u 2 %4u\n",epever_statistical_1_g.TodayGeneratedEnergy*10,epever_statistical_2_g.TodayGeneratedEnergy*10);
             sprintf(buffer + strlen(buffer),"Solar\t%7.2f\n",((float)sunbar*10000));
 
             lv_label_set_text_fmt(ui_BattLabelval,"%s",buffer);

@@ -251,8 +251,8 @@ void ui_Screen1_screen_init(void)
     ui_Labeltime = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_Labeltime, LV_SIZE_CONTENT);   /// 20
     lv_obj_set_height(ui_Labeltime, LV_SIZE_CONTENT);    /// 10
-    lv_obj_set_x(ui_Labeltime, 14);
-    lv_obj_set_y(ui_Labeltime, 79);
+    lv_obj_set_x(ui_Labeltime, 9);
+    lv_obj_set_y(ui_Labeltime, 78);
     lv_label_set_long_mode(ui_Labeltime, LV_LABEL_LONG_CLIP);
     lv_label_set_text(ui_Labeltime, "19:00");
     lv_obj_set_style_text_color(ui_Labeltime, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -264,7 +264,7 @@ void ui_Screen1_screen_init(void)
     ui_Heatmap = lv_img_create(ui_Screen1);
     lv_obj_set_width(ui_Heatmap, 288);
     lv_obj_set_height(ui_Heatmap, 192);
-    lv_obj_set_x(ui_Heatmap, 33);
+    lv_obj_set_x(ui_Heatmap, 30);
     lv_obj_set_y(ui_Heatmap, 250);
     lv_obj_add_flag(ui_Heatmap, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Heatmap, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -272,8 +272,6 @@ void ui_Screen1_screen_init(void)
     ui_WeekLabel = lv_label_create(ui_Heatmap);
     lv_obj_set_width(ui_WeekLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_WeekLabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_WeekLabel, 1);
-    lv_obj_set_y(ui_WeekLabel, 5);
     lv_label_set_text(ui_WeekLabel, "Tex0\nTex1\nTex2\nTex3\nTex4\nTex5\nTex6");
     lv_obj_set_style_text_color(ui_WeekLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WeekLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);

@@ -341,11 +341,18 @@ void master_read_status_inverter(volatile epever_status_inverter_t *epever)
         err = mbc_master_get_parameter(InverterOnoff, (char *)param_descriptor->param_key, (uint8_t *)&value, &type);
         if (err == ESP_OK)
         {
-            epever->InverterOnoff = (*(uint16_t *)&value[0]) > 1;
+            //epever->InverterOnoff = (*(uint16_t *)&value[0]) > 1;
+            epever->InverterOnoff = value[0];
+            ESP_LOGI(MASTER_TAG, "Inverter status:%d %d %d",epever->InverterOnoff,value[0],value[1]);
+            
             // read decimal 128 when on 0 when off
             // 1 Turn on the inverter output 0 Turn off the Inverter output
             // (uint16_t)value[0];
             // epever->ForceTheLoadOnOff = (*(uint16_t*)&value[1]) > 1;
+        }
+        else
+        {
+            ESP_LOGI(MASTER_TAG, "Inverter error:%d",err);
         }
     }
     vTaskDelay(POLL_TIMEOUT_TICS);
@@ -355,7 +362,7 @@ void master_read_status_inverter(volatile epever_status_inverter_t *epever)
 
 void master_set_status_inverter(bool value)
 {
-    ESP_LOGV(MASTER_TAG, "Begin master_set_status_inverter");
+    ESP_LOGI(MASTER_TAG, "Begin master_set_status_inverter");
     esp_err_t err = ESP_OK;
     const mb_parameter_descriptor_t *param_descriptor = NULL;
     uint8_t type = 0;
@@ -365,11 +372,11 @@ void master_set_status_inverter(bool value)
     err = mbc_master_set_parameter(InverterLocalorRemote, (char *)param_descriptor->param_key, (uint8_t *)&val2, &type);
     if (err == ESP_OK)
     {
-        ESP_LOGV(MASTER_TAG, "set local remote ok.");
+        ESP_LOGI(MASTER_TAG, "set local remote ok.");
     }
     else
     {
-        ESP_LOGV(MASTER_TAG, "set local remote fail.");
+        ESP_LOGI(MASTER_TAG, "set local remote fail.");
     }
     vTaskDelay(UPDATE_CIDS_TIMEOUT_TICS);
     param_descriptor = NULL;
@@ -386,15 +393,15 @@ void master_set_status_inverter(bool value)
     err = mbc_master_set_parameter(InverterOnoff, (char *)param_descriptor->param_key, (uint8_t *)&val2, &type);
     if (err == ESP_OK)
     {
-        ESP_LOGV(MASTER_TAG, "set inverter on off ok.");
+        ESP_LOGI(MASTER_TAG, "set inverter on off ok.");
     }
     else
     {
-        ESP_LOGV(MASTER_TAG, "set inverter on off fail.");
+        ESP_LOGI(MASTER_TAG, "set inverter on off fail.");
     }
 
     vTaskDelay(UPDATE_CIDS_TIMEOUT_TICS);
-    ESP_LOGV(MASTER_TAG, "End master_set_status_inverter.");
+    ESP_LOGI(MASTER_TAG, "End master_set_status_inverter.");
 }
 
 void master_read_rated_cc(volatile epever_rated_cc_t *epever)
