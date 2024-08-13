@@ -85,7 +85,7 @@ static void display_backlight_init()
 void prepareinverteroff()
 {
     setinverter = false;
-    swperiod = 1000; // based on a loop time of 0.5 a second 500 seconds
+    swperiod = 500; 
 }
 
 void ui_event_Inverterswitch(lv_event_t *e)
@@ -162,32 +162,24 @@ int daynum(long long usect, int utc_offset_min)
 }
 void drawheatmappoint(const lv_img_dsc_t * dsc,int weekday,int x,int point)
 {
-    
     // one day: 192 / 12 so 16 days room for now (can compact later)
     //uint8_t * buf = (uint8_t *)&dsc.data; 
-    uint32_t y;
-    for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
+    // y;
+    for (uint32_t y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
     {
-    
         // uint8_t * buf = (uint8_t *)dsc->data+1024+(y*288)+x; 
         // buf[0]=(uint8_t)(point/2);
-
         lv_color16_t fo;
-        fo.full = (uint8_t)(point/2);
+        fo.full = (uint8_t)((point/2)>255)?255:(point/2);
         lv_img_buf_set_px_color(dsc,x,y,fo);        
     } 
 }
 void drawmespoint(lv_obj_t * canvas,int weekday,int x,int point)
 {
-    
-    //if (x > 40)
+    for (uint32_t y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
     {
-        uint32_t y;
-       for (y = 0 + (weekday * HEAT_LINE_HEIGHT); y < HEAT_LINE_HEIGHT + (weekday * HEAT_LINE_HEIGHT); y++) // one measurement is a line
-        {
-            lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
-        } 
-    }
+        lv_canvas_set_px_color(canvas, x, y, lv_color_make((uint8_t)(point / 2), (uint8_t)(point / 2), 0x80 - (uint8_t)(point / 4)));
+    } 
 }
 void setweeklabel(int * totalday )
 {
@@ -251,7 +243,12 @@ void __epever_modbus_task(void *user_data)
     epever_status_inverter_t epever_status_inverter = {};
     epever_discrete_cc_t epever_discrete_cc = {};
     struct timeval displaytimeval = {.tv_sec = 0};
-    struct tm *tm_info;    
+    struct tm *tm_info;
+    
+    int battdischargeresetsize=8;
+    int battdischargeresetidx=0;
+    float battdischargereset[battdischargeresetsize];
+
     lv_img_set_src(ui_Heatmap, &ui_img_baseheat_mod_png);
 
     display_backlight_init();
@@ -312,11 +309,6 @@ void __epever_modbus_task(void *user_data)
         lv_img_buf_set_px_color(&ui_img_baseheat_mod_png,x,189,fo);
         lv_img_buf_set_px_color(&ui_img_baseheat_mod_png,x,190,fo);
         lv_img_buf_set_px_color(&ui_img_baseheat_mod_png,x,191,fo);
-
-        // buf[y] = x;
-        // buf[288+y] = x;
-        // buf[576+y] = x;
-        // buf[864+y] = x;
     }
     for (x = 0; x < 256; x++)
     {
@@ -417,6 +409,12 @@ void __epever_modbus_task(void *user_data)
         {
             // propose  epever_load_g.LoadInputVoltage>1430 but need to check for a good idea
             // 1400 spotted in operation
+            {
+                float battdischarge = (((float)(running.millijouleIn - sincefull.millijouleIn) - (float)(running.millijouleOu - sincefull.millijouleOu)) / 3600000000);
+                battdischargereset[battdischargeresetidx] = battdischarge;
+                battdischargeresetidx = (battdischargeresetidx + 1) % battdischargeresetsize;
+            }
+            //int battdischargeresetidx=0;
             copywatts(&sincefull,&running);
         }
 
@@ -463,7 +461,7 @@ void __epever_modbus_task(void *user_data)
                 setinverter = true;          // set it back to on so the avarage can be measured
                 swperiod = measurecount * 2; // measurecount is the average buffer size. Times 2 because the first measurements might be inacurate
             }
-            else if ((avg.PInCC < 15000) && (avg.POutInv < 2500) && (epever_load_g.LoadInputVoltage<1400)) // if less than 200 watt from the panels and below 26 watt demand (the consumption of the inverter)
+            else if ((avg.PInCC < 15000) && (avg.POutInv < 3300) && (epever_load_g.LoadInputVoltage<1400)) // if less than 200 watt from the panels and below 26 watt demand (the consumption of the inverter)
             {
                 prepareinverteroff();
             }
