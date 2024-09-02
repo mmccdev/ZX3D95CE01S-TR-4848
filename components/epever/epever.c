@@ -343,7 +343,7 @@ void master_read_status_inverter(volatile epever_status_inverter_t *epever)
         {
             //epever->InverterOnoff = (*(uint16_t *)&value[0]) > 1;
             epever->InverterOnoff = value[0];
-            ESP_LOGI(MASTER_TAG, "Inverter status:%d %d %d",epever->InverterOnoff,value[0],value[1]);
+            //ESP_LOGI(MASTER_TAG, "Inverter status:%d %d %d",epever->InverterOnoff,value[0],value[1]);
             
             // read decimal 128 when on 0 when off
             // 1 Turn on the inverter output 0 Turn off the Inverter output

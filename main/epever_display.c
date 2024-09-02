@@ -27,10 +27,6 @@ LV_IMG_DECLARE(ui_img_baseheat_mod_png);    // modified because of LV_IMG_CF_IND
 #define LEDC_DUTY_100           (8191) // Set duty to 100%.
 #define LEDC_FREQUENCY          (5000) // Frequency in Hertz. Set frequency at 5 kHz
 
-#define CANVAS_WIDTH  288
-#define CANVAS_HEIGHT 112
-#define HEAT_LINE_HEIGHT 12
-
 struct measures
 {
     signed long long PInCC;
@@ -333,7 +329,7 @@ void __epever_modbus_task(void *user_data)
         master_read_realtime_cc2(&epever_realtime_2_g);
         master_read_load_inverter(&epever_load_g);
         master_read_status_inverter(&epever_status_inverter);
-        ESP_LOGI("Inverter ", "%d %d", epever_status_inverter.InverterOnoff,setinverter);
+        //ESP_LOGI("Inverter ", "%d %d", epever_status_inverter.InverterOnoff,setinverter);
 
         if (epever_status_inverter.InverterOnoff != setinverter)
         {

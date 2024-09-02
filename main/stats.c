@@ -84,7 +84,7 @@ void savestat(struct watts Wattswrite)
 
 short int *getstatsa(int wday)
 {
-    static short int ret[LOG_INTERVAL_SEC];    
+    static short int ret[CANVAS_WIDTH];    
     struct watts Wattsread;
     int i = 0;
     ESP_LOGI(TAG, "Reading file");
@@ -102,8 +102,11 @@ short int *getstatsa(int wday)
             break;
         else 
         {
+            if (i<CANVAS_WIDTH)
+            {
             //ESP_LOGI(TAG, "e: %12lld, s %12lld, I %12lld, O %12lld", Wattsread.elapsed_usect,Wattsread.since70_usect,Wattsread.millijouleIn, Wattsread.millijouleOu);
-            ret[i]=(short int)(Wattsread.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));  
+                ret[i]=(short int)(Wattsread.millijouleIn/(long long)(1000*LOG_INTERVAL_SEC));  
+            }
             //3600/LOG_INTERVAL_SEC
             //solar_sincetodaystart = (int)(Wattsread.millijouleIn/3600000);
             //LOG_INTERVAL_SEC

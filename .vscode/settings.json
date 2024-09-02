@@ -16,5 +16,6 @@
         "esp_freertos_hooks.h": "c",
         "array": "c",
         "string_view": "c"
-    }
+    },
+    "idf.port": "/dev/tty.usbserial-1401"
 }
