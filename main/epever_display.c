@@ -457,7 +457,7 @@ void __epever_modbus_task(void *user_data)
                 setinverter = true;          // set it back to on so the avarage can be measured
                 swperiod = measurecount * 2; // measurecount is the average buffer size. Times 2 because the first measurements might be inacurate
             }
-            else if ((avg.PInCC < 15000) && (avg.POutInv < 3300) && (epever_load_g.LoadInputVoltage<1400)) // if less than 200 watt from the panels and below 26 watt demand (the consumption of the inverter)
+            else if ((avg.PInCC < 15000) && (avg.POutInv < 2600) && (epever_load_g.LoadInputVoltage<1400)) // if less than 200 watt from the panels and below 26 watt demand (the consumption of the inverter)
             {
                 prepareinverteroff();
             }

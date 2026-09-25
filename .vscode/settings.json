@@ -17,5 +17,6 @@
         "array": "c",
         "string_view": "c"
     },
-    "idf.port": "/dev/tty.usbserial-1401"
+    "idf.port": "/dev/tty.usbserial-A5069RR4",
+    "idf.currentSetup": "/Users/michielmuilwijk/esp/v5.3/esp-idf"
 }
